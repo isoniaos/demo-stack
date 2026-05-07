@@ -36,6 +36,21 @@ The Dockerfiles clone public repositories at pinned Git tags:
 The docs tag is listed for alignment. This stack does not clone the docs repo at
 runtime.
 
+## Build Security Note
+
+The `app-core` demo image sets `PNPM_CONFIG_DANGEROUSLY_ALLOW_ALL_BUILDS=true`
+during Docker build.
+
+This is a demo-only workaround for `pnpm` v11 restrictions on build scripts of
+git-hosted dependencies such as `@isonia/sdk` and `@isonia/types`.
+
+This setting weakens the default supply-chain protection of `pnpm` by allowing
+dependency install and prepare scripts to run automatically, including inside
+nested git dependencies cloned during the image build.
+
+Do not reuse this setting unchanged for production images or unreviewed
+dependency graphs.
+
 ## Prerequisites
 
 - Docker.
