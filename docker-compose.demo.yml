@@ -120,12 +120,12 @@ services:
         corepack pnpm dev
 
   app-core:
-    image: isonia-demo-app-core:v0.6.0-alpha.5
+    image: isonia-demo-app-core:v0.6.0-alpha.6
     build:
       context: .
       dockerfile: docker/Dockerfile.app-core
       args:
-        APP_CORE_TAG: v0.6.0-alpha.5
+        APP_CORE_TAG: v0.6.0-alpha.6
     depends_on:
       control-plane:
         condition: service_started
