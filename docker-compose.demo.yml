@@ -20,12 +20,13 @@ services:
       retries: 20
 
   hardhat:
-    image: isonia-demo-evm-contracts:v0.6.0-alpha.3
+    image: isonia-demo-evm-contracts:${EVM_CONTRACTS_VERSION}
     build:
       context: .
       dockerfile: docker/Dockerfile.evm-contracts
       args:
-        EVM_CONTRACTS_TAG: v0.6.0-alpha.3
+        EVM_CONTRACTS_TAG: v${EVM_CONTRACTS_VERSION}
+        EVM_CONTRACTS_VERSION: ${EVM_CONTRACTS_VERSION}
     command:
       - bash
       - -lc
@@ -34,19 +35,18 @@ services:
       - "127.0.0.1:${HARDHAT_PORT:-8545}:8545"
 
   contracts-deploy:
-    image: isonia-demo-evm-contracts:v0.6.0-alpha.3
+    image: isonia-demo-evm-contracts:${EVM_CONTRACTS_VERSION}
     depends_on:
       hardhat:
         condition: service_started
     network_mode: service:hardhat
     environment:
-      API_PORT: "${API_PORT:-3000}"
       APP_PORT: "${APP_PORT:-5173}"
       BROWSER_HARDHAT_RPC_URL: "${HARDHAT_RPC_URL:-http://127.0.0.1:8545}"
       CHAIN_ID: "${CHAIN_ID:-31337}"
       CONTAINER_HARDHAT_RPC_URL: "http://hardhat:8545"
       CORS_ORIGINS: "${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}"
-      EVM_CONTRACTS_TAG: "v0.6.0-alpha.3"
+      EVM_CONTRACTS_TAG: "v${EVM_CONTRACTS_VERSION}"
       HARDHAT_RPC_URL: "http://127.0.0.1:8545"
       POSTGRES_DB: "${POSTGRES_DB:-isonia_demo}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-isonia_local_demo_password}"
@@ -66,12 +66,13 @@ services:
     restart: "no"
 
   control-plane-migrate:
-    image: isonia-demo-control-plane:v0.6.0-alpha.2
+    image: isonia-demo-control-plane:${CONTROL_PLANE_VERSION}
     build:
       context: .
       dockerfile: docker/Dockerfile.control-plane
       args:
-        CONTROL_PLANE_TAG: v0.6.0-alpha.2
+        CONTROL_PLANE_TAG: v${CONTROL_PLANE_VERSION}
+        CONTROL_PLANE_VERSION: ${CONTROL_PLANE_VERSION}
     depends_on:
       postgres:
         condition: service_healthy
@@ -95,7 +96,7 @@ services:
     restart: "no"
 
   control-plane:
-    image: isonia-demo-control-plane:v0.6.0-alpha.2
+    image: isonia-demo-control-plane:${CONTROL_PLANE_VERSION}
     depends_on:
       postgres:
         condition: service_healthy
@@ -120,12 +121,13 @@ services:
         corepack pnpm dev
 
   app-core:
-    image: isonia-demo-app-core:v0.6.0-alpha.7
+    image: isonia-demo-app-core:${APP_CORE_VERSION}
     build:
       context: .
       dockerfile: docker/Dockerfile.app-core
       args:
-        APP_CORE_TAG: v0.6.0-alpha.7
+        APP_CORE_TAG: v${APP_CORE_VERSION}
+        APP_CORE_VERSION: ${APP_CORE_VERSION}
     depends_on:
       control-plane:
         condition: service_started

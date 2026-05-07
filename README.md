@@ -21,7 +21,8 @@ can briefly lag chain state.
 
 ## Target Versions
 
-The Dockerfiles clone public repositories at pinned Git tags:
+The Dockerfiles clone public repositories at pinned Git tags derived from `.env`
+version variables:
 
 | Package | Tag |
 | --- | --- |
@@ -30,11 +31,17 @@ The Dockerfiles clone public repositories at pinned Git tags:
 | `@isonia/theme-default` | `v0.6.0-alpha.2` |
 | `@isonia/control-plane` | `v0.6.0-alpha.2` |
 | `@isonia/evm-contracts` | `v0.6.0-alpha.3` |
-| `@isonia/app-core` | `v0.6.0-alpha.5` |
+| `@isonia/app-core` | `v0.6.0-alpha.7` |
 | `isoniaos/docs` | `v0.6.0-alpha.6` |
 
 The docs tag is listed for alignment. This stack does not clone the docs repo at
 runtime.
+
+The demo stack uses `.env` as the single source of truth for these repository
+versions. Keep the values without the leading `v`.
+
+Copy `.env.demo.example` to `.env` before running Compose so these required
+version variables are present.
 
 ## Build Security Note
 
@@ -135,6 +142,9 @@ Hardhat state changes.
 Edit `.env` for local ports and feature gates:
 
 ```txt
+APP_CORE_VERSION=0.6.0-alpha.7
+EVM_CONTRACTS_VERSION=0.6.0-alpha.3
+CONTROL_PLANE_VERSION=0.6.0-alpha.2
 API_PORT=3000
 APP_PORT=5173
 HARDHAT_RPC_URL=http://127.0.0.1:8545
@@ -144,6 +154,10 @@ createProposal=true
 writeActions=true
 manageOrg=true
 ```
+
+`APP_CORE_VERSION`, `EVM_CONTRACTS_VERSION`, and `CONTROL_PLANE_VERSION` are the
+single sources for the corresponding demo image tags, Git tags, and package
+version checks. Keep them without the leading `v`.
 
 `REOWN_PROJECT_ID` is empty by default. App Core remains usable through injected
 wallet fallback.
