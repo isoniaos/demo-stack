@@ -28,11 +28,11 @@ version variables:
 | --- | --- |
 | `@isonia/types` | `v0.6.0-alpha.2` |
 | `@isonia/sdk` | `v0.6.0-alpha.4` |
-| `@isonia/theme-default` | `v0.6.0-alpha.2` |
+| `@isonia/theme-default` | `v0.6.0-alpha.3` |
 | `@isonia/control-plane` | `v0.6.0-alpha.2` |
-| `@isonia/evm-contracts` | `v0.6.0-alpha.3` |
-| `@isonia/app-core` | `v0.6.0-alpha.7` |
-| `isoniaos/docs` | `v0.6.0-alpha.6` |
+| `@isonia/evm-contracts` | `v0.6.0-alpha.4` |
+| `@isonia/app-core` | `v0.6.0-alpha.18` |
+| `isoniaos/docs` | `v0.6.0-alpha.8` |
 
 The docs tag is listed for alignment. This stack does not clone the docs repo at
 runtime.
