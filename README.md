@@ -142,8 +142,8 @@ Hardhat state changes.
 Edit `.env` for local ports and feature gates:
 
 ```txt
-APP_CORE_VERSION=0.6.0-alpha.7
-EVM_CONTRACTS_VERSION=0.6.0-alpha.3
+APP_CORE_VERSION=0.6.0-alpha.18
+EVM_CONTRACTS_VERSION=0.6.0-alpha.4
 CONTROL_PLANE_VERSION=0.6.0-alpha.2
 API_PORT=3000
 APP_PORT=5173
