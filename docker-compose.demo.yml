@@ -46,6 +46,10 @@ services:
       CHAIN_ID: "${CHAIN_ID:-31337}"
       CONTAINER_HARDHAT_RPC_URL: "http://hardhat:8545"
       CORS_ORIGINS: "${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}"
+      APP_CORE_VERSION: "${APP_CORE_VERSION}"
+      CONTROL_PLANE_VERSION: "${CONTROL_PLANE_VERSION}"
+      DOCS_VERSION: "${DOCS_VERSION}"
+      EVM_CONTRACTS_VERSION: "${EVM_CONTRACTS_VERSION}"
       EVM_CONTRACTS_TAG: "v${EVM_CONTRACTS_VERSION}"
       HARDHAT_RPC_URL: "http://127.0.0.1:8545"
       POSTGRES_DB: "${POSTGRES_DB:-isonia_demo}"
@@ -54,6 +58,9 @@ services:
       REOWN_PROJECT_ID: "${REOWN_PROJECT_ID:-}"
       RUNTIME_DIR: "/runtime"
       RUN_SEED: "true"
+      SDK_VERSION: "${SDK_VERSION}"
+      THEME_DEFAULT_VERSION: "${THEME_DEFAULT_VERSION}"
+      TYPES_VERSION: "${TYPES_VERSION}"
       createProposal: "${createProposal:-true}"
       manageOrg: "${manageOrg:-true}"
       writeActions: "${writeActions:-true}"
@@ -151,6 +158,7 @@ services:
         done
         cp /runtime/isonia.config.json /opt/isonia/app-core/dist/isonia.config.json
         bash /demo/scripts/wait-for-http.sh "http://control-plane:${API_PORT:-3000}/v1/diagnostics" get 180
+        bash /demo/scripts/wait-for-http.sh "http://control-plane:${API_PORT:-3000}/v1/capabilities" get 180
         corepack pnpm preview --host 0.0.0.0 --port 5173
 
 volumes:

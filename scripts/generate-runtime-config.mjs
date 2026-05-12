@@ -21,6 +21,23 @@ const corsOrigins = readString(
   "CORS_ORIGINS",
   `http://localhost:${appPort},http://127.0.0.1:${appPort}`,
 );
+const evmContractsVersion = readPackageVersion(
+  "EVM_CONTRACTS_VERSION",
+  "0.7.0-alpha.1",
+);
+const versions = {
+  evmContracts: toTag(evmContractsVersion),
+  controlPlane: toTag(
+    readPackageVersion("CONTROL_PLANE_VERSION", "0.7.0-alpha.1"),
+  ),
+  appCore: toTag(readPackageVersion("APP_CORE_VERSION", "0.7.0-alpha.1")),
+  sdk: toTag(readPackageVersion("SDK_VERSION", "0.7.0-alpha.1")),
+  themeDefault: toTag(
+    readPackageVersion("THEME_DEFAULT_VERSION", "0.6.0-alpha.3"),
+  ),
+  types: toTag(readPackageVersion("TYPES_VERSION", "0.7.0-alpha.1")),
+  docs: toTag(readPackageVersion("DOCS_VERSION", "0.7.0-alpha.1")),
+};
 
 const raw = readJson(sourcePath);
 const contracts = resolveContracts(raw, sourcePath);
@@ -32,14 +49,7 @@ const normalized = {
   chainId,
   generatedAt,
   source: sourcePath,
-  versions: {
-    evmContracts: "v0.6.0-alpha.3",
-    controlPlane: "v0.6.0-alpha.2",
-    appCore: "v0.6.0-alpha.5",
-    sdk: "v0.6.0-alpha.4",
-    themeDefault: "v0.6.0-alpha.2",
-    types: "v0.6.0-alpha.2",
-  },
+  versions,
   contracts,
   raw,
 };
@@ -59,6 +69,7 @@ writeText(
     envLine("CONFIRMATIONS", "0"),
     envLine("BLOCK_RANGE_SIZE", "1000"),
     envLine("POLL_INTERVAL_MS", "2000"),
+    envLine("EVM_CONTRACTS_VERSION", evmContractsVersion),
     envLine("PG_HOST", "postgres"),
     envLine("PG_PORT", "5432"),
     envLine("PG_DATABASE", readString("POSTGRES_DB", "isonia_demo")),
@@ -212,6 +223,14 @@ function isAddress(value) {
 function readString(name, fallback) {
   const value = process.env[name];
   return value === undefined || value === "" ? fallback : value;
+}
+
+function readPackageVersion(name, fallback) {
+  return readString(name, fallback).replace(/^v/, "");
+}
+
+function toTag(version) {
+  return `v${version}`;
 }
 
 function readInteger(name, fallback) {

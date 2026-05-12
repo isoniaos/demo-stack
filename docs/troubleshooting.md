@@ -13,7 +13,7 @@ The deploy script expects Hardhat Ignition output under:
 ignition/deployments/*/deployed_addresses.json
 ```
 
-For v0.6 it recognizes these keys:
+For v0.7 it recognizes these keys:
 
 ```txt
 IsoniaProtocolV01Module#GovCore
@@ -51,6 +51,7 @@ Open:
 ```txt
 http://localhost:3000/v1/diagnostics
 http://localhost:3000/v1/diagnostics/indexer
+http://localhost:3000/v1/capabilities
 ```
 
 The indexer reads the local Hardhat RPC. The projection worker turns raw events
@@ -60,6 +61,41 @@ transactions. If the backlog does not drain, inspect:
 ```sh
 docker compose -f docker-compose.demo.yml logs control-plane
 ```
+
+## Capabilities endpoint missing or contract batch unsupported
+
+Control Plane v0.7 exposes:
+
+```sh
+curl http://localhost:3000/v1/capabilities
+```
+
+Serial activation should be reported as available. Contract batch activation is
+reported as supported only when the generated Control Plane environment includes:
+
+```txt
+EVM_CONTRACTS_VERSION=0.7.0-alpha.1
+```
+
+Check the generated file:
+
+```txt
+runtime/control-plane.env
+```
+
+If the endpoint is missing, confirm the stack is using
+`CONTROL_PLANE_VERSION=0.7.0-alpha.1`. If contract batch is unsupported, confirm
+the stack is using `EVM_CONTRACTS_VERSION=0.7.0-alpha.1`, then reset and
+redeploy the local demo state.
+
+App Core reads capabilities from the configured `apiBaseUrl` in:
+
+```txt
+runtime/isonia.config.json
+```
+
+The default browser API base URL is `http://localhost:3000`, with CORS allowing
+the local App Core host. EIP-5792 wallet batching is not the default path.
 
 ## App Core points to wrong contract addresses
 
@@ -108,7 +144,7 @@ Then start the stack again.
 
 ## DemoTarget hash mismatch
 
-App Core executes only the v0.6 demo path for `DemoTarget.setNumber`. If the
+App Core executes the local demo path for `DemoTarget.setNumber`. If the
 proposal data hash does not match the configured `DemoTarget` address and
 encoded action, recreate the proposal after confirming:
 

@@ -1,7 +1,7 @@
-# IsoniaOS v0.6 Local Docker Demo Stack
+# IsoniaOS v0.7 Local Docker Demo Stack
 
 This repository provides a local Docker Compose stack for running the IsoniaOS
-v0.6 alpha demo on a developer machine. It exists to make local onboarding and
+v0.7 alpha demo on a developer machine. It exists to make local onboarding and
 design-partner walkthroughs easier.
 
 It is not a production deployment, audit reference, security guide, hosted SaaS
@@ -14,7 +14,7 @@ can briefly lag chain state.
 
 - `postgres`: local Control Plane database.
 - `hardhat`: local Hardhat JSON-RPC node on `http://localhost:8545`.
-- `contracts-deploy`: deploys and seeds the v0.6 demo contracts.
+- `contracts-deploy`: deploys and seeds the v0.7 demo contracts.
 - `control-plane-migrate`: runs Control Plane database migrations.
 - `control-plane`: runs the REST API, indexer, and projection worker.
 - `app-core`: serves the built App Core SPA on `http://localhost:5173`.
@@ -26,13 +26,13 @@ version variables:
 
 | Package | Tag |
 | --- | --- |
-| `@isonia/types` | `v0.6.0-alpha.2` |
-| `@isonia/sdk` | `v0.6.0-alpha.4` |
+| `@isonia/types` | `v0.7.0-alpha.1` |
+| `@isonia/sdk` | `v0.7.0-alpha.1` |
 | `@isonia/theme-default` | `v0.6.0-alpha.3` |
-| `@isonia/control-plane` | `v0.6.0-alpha.2` |
-| `@isonia/evm-contracts` | `v0.6.0-alpha.4` |
-| `@isonia/app-core` | `v0.6.0-alpha.18` |
-| `isoniaos/docs` | `v0.6.0-alpha.8` |
+| `@isonia/control-plane` | `v0.7.0-alpha.1` |
+| `@isonia/evm-contracts` | `v0.7.0-alpha.1` |
+| `@isonia/app-core` | `v0.7.0-alpha.1` |
+| `isoniaos/docs` | `v0.7.0-alpha.1` |
 
 The docs tag is listed for alignment. This stack does not clone the docs repo at
 runtime.
@@ -94,23 +94,35 @@ Open:
 - App Core diagnostics: <http://localhost:5173/diagnostics>
 - Control Plane diagnostics: <http://localhost:3000/v1/diagnostics>
 - Control Plane indexer diagnostics: <http://localhost:3000/v1/diagnostics/indexer>
+- Control Plane capabilities: <http://localhost:3000/v1/capabilities>
 - Hardhat RPC: <http://localhost:8545>
 
 ## Demo Flow
 
 1. Start the stack and wait for `contracts-deploy` to complete.
 2. Open App Core at `http://localhost:5173`.
-3. Open `/diagnostics` and confirm the Control Plane API, contract addresses,
-   indexer, and projection worker are visible.
-4. Connect a browser wallet to chain ID `31337` with RPC URL
+3. Open App Core `/diagnostics` and confirm the Control Plane API, contract
+   addresses, indexer, projection worker, and activation capabilities are
+   visible.
+4. Open Control Plane `/v1/diagnostics` and `/v1/capabilities`. Confirm the API
+   is healthy, the indexer is caught up, serial activation is available, and
+   contract batch activation is reported as supported for
+   `EVM_CONTRACTS_VERSION=0.7.0-alpha.1`.
+5. Connect a browser wallet to chain ID `31337` with RPC URL
    `http://127.0.0.1:8545`.
-5. Browse seeded organizations, governance structure, proposals, routes, and the
+6. Browse seeded organizations, governance structure, proposals, routes, and the
    graph view.
-6. For write-flow testing, use only local Hardhat accounts or local balances.
+7. For write-flow testing, use only local Hardhat accounts or local balances.
 
 The demo seed creates local preview organizations and proposals by using the
 existing `@isonia/evm-contracts` seed script. It does not add new contract
 behavior.
+
+The v0.7 setup flow is capability-aware. App Core reads
+`GET /v1/capabilities` from Control Plane and uses typed contract batch
+activation only when the configured contracts explicitly support it. Serial
+activation remains the fallback path. EIP-5792 wallet batching remains gated
+prototype behavior and is not the default execution path.
 
 ## Runtime Files
 
@@ -142,9 +154,13 @@ Hardhat state changes.
 Edit `.env` for local ports and feature gates:
 
 ```txt
-APP_CORE_VERSION=0.6.0-alpha.18
-EVM_CONTRACTS_VERSION=0.6.0-alpha.4
-CONTROL_PLANE_VERSION=0.6.0-alpha.2
+APP_CORE_VERSION=0.7.0-alpha.1
+EVM_CONTRACTS_VERSION=0.7.0-alpha.1
+CONTROL_PLANE_VERSION=0.7.0-alpha.1
+TYPES_VERSION=0.7.0-alpha.1
+SDK_VERSION=0.7.0-alpha.1
+DOCS_VERSION=0.7.0-alpha.1
+THEME_DEFAULT_VERSION=0.6.0-alpha.3
 API_PORT=3000
 APP_PORT=5173
 HARDHAT_RPC_URL=http://127.0.0.1:8545
@@ -155,9 +171,13 @@ writeActions=true
 manageOrg=true
 ```
 
-`APP_CORE_VERSION`, `EVM_CONTRACTS_VERSION`, and `CONTROL_PLANE_VERSION` are the
-single sources for the corresponding demo image tags, Git tags, and package
-version checks. Keep them without the leading `v`.
+The version variables are the single sources for the corresponding demo image
+tags, Git tags, generated runtime metadata, and package version checks. Keep
+them without the leading `v`.
+
+`EVM_CONTRACTS_VERSION` is also written to `runtime/control-plane.env` so
+Control Plane can report whether contract batch activation is supported. This is
+non-secret capability metadata.
 
 `REOWN_PROJECT_ID` is empty by default. App Core remains usable through injected
 wallet fallback.
@@ -189,6 +209,7 @@ See [docs/troubleshooting.md](docs/troubleshooting.md) for common cases:
 - contracts-deploy cannot find deployed addresses.
 - Control Plane API unreachable.
 - indexer stale or projection backlog.
+- capabilities endpoint missing or contract batch unsupported.
 - App Core points to wrong contract addresses.
 - browser wallet wrong chain or account not funded.
 - Hardhat restarted and stale addresses.
