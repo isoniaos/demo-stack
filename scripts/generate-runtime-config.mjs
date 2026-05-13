@@ -23,19 +23,19 @@ const corsOrigins = readString(
 );
 const evmContractsVersion = readPackageVersion(
   "EVM_CONTRACTS_VERSION",
-  "0.7.0-alpha.1",
+  "0.7.0-alpha.3",
 );
 const versions = {
   evmContracts: toTag(evmContractsVersion),
   controlPlane: toTag(
-    readPackageVersion("CONTROL_PLANE_VERSION", "0.7.0-alpha.1"),
+    readPackageVersion("CONTROL_PLANE_VERSION", "0.7.0-alpha.2"),
   ),
-  appCore: toTag(readPackageVersion("APP_CORE_VERSION", "0.7.0-alpha.1")),
-  sdk: toTag(readPackageVersion("SDK_VERSION", "0.7.0-alpha.1")),
+  appCore: toTag(readPackageVersion("APP_CORE_VERSION", "0.7.0-alpha.2")),
+  sdk: toTag(readPackageVersion("SDK_VERSION", "0.7.0-alpha.2")),
   themeDefault: toTag(
     readPackageVersion("THEME_DEFAULT_VERSION", "0.6.0-alpha.3"),
   ),
-  types: toTag(readPackageVersion("TYPES_VERSION", "0.7.0-alpha.1")),
+  types: toTag(readPackageVersion("TYPES_VERSION", "0.7.0-alpha.2")),
   docs: toTag(readPackageVersion("DOCS_VERSION", "0.7.0-alpha.1")),
 };
 

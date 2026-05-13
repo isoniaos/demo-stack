@@ -26,13 +26,13 @@ version variables:
 
 | Package | Tag |
 | --- | --- |
-| `@isonia/types` | `v0.7.0-alpha.1` |
-| `@isonia/sdk` | `v0.7.0-alpha.1` |
+| `@isonia/types` | `v0.7.0-alpha.2` |
+| `@isonia/sdk` | `v0.7.0-alpha.2` |
 | `@isonia/theme-default` | `v0.6.0-alpha.3` |
-| `@isonia/control-plane` | `v0.7.0-alpha.1` |
-| `@isonia/evm-contracts` | `v0.7.0-alpha.1` |
-| `@isonia/app-core` | `v0.7.0-alpha.1` |
-| `isoniaos/docs` | `v0.7.0-alpha.1` |
+| `@isonia/control-plane` | `v0.7.0-alpha.2` |
+| `@isonia/evm-contracts` | `v0.7.0-alpha.4` |
+| `@isonia/app-core` | `v0.7.0-alpha.2` |
+| `isoniaos/docs` | `v0.7.0-alpha.1` plus finalization design commit `5ee1dd6eb6f35a439957cee7a1037b92ec11f289` |
 
 The docs tag is listed for alignment. This stack does not clone the docs repo at
 runtime.
@@ -95,6 +95,7 @@ Open:
 - Control Plane diagnostics: <http://localhost:3000/v1/diagnostics>
 - Control Plane indexer diagnostics: <http://localhost:3000/v1/diagnostics/indexer>
 - Control Plane capabilities: <http://localhost:3000/v1/capabilities>
+- Control Plane org finalization: `http://localhost:3000/v1/orgs/:orgId/finalization`
 - Hardhat RPC: <http://localhost:8545>
 
 ## Demo Flow
@@ -102,17 +103,24 @@ Open:
 1. Start the stack and wait for `contracts-deploy` to complete.
 2. Open App Core at `http://localhost:5173`.
 3. Open App Core `/diagnostics` and confirm the Control Plane API, contract
-   addresses, indexer, projection worker, and activation capabilities are
-   visible.
+   addresses, indexer, projection worker, activation capabilities, and
+   finalization status are visible.
 4. Open Control Plane `/v1/diagnostics` and `/v1/capabilities`. Confirm the API
    is healthy, the indexer is caught up, serial activation is available, and
-   contract batch activation is reported as supported for
-   `EVM_CONTRACTS_VERSION=0.7.0-alpha.1`.
+   contract batch activation plus bootstrap finalization are reported as
+   supported for `EVM_CONTRACTS_VERSION=0.7.0-alpha.3`.
 5. Connect a browser wallet to chain ID `31337` with RPC URL
    `http://127.0.0.1:8545`.
 6. Browse seeded organizations, governance structure, proposals, routes, and the
    graph view.
-7. For write-flow testing, use only local Hardhat accounts or local balances.
+7. For setup testing, activate a draft organization through the setup flow.
+8. After activation, check `GET /v1/orgs/:orgId/finalization` and finalize the
+   organization from App Core when the connected account has indexed bootstrap
+   admin authority.
+9. Confirm the finalized organization remains active and readable. App Core
+   should disable or explain bootstrap-admin actions that are no longer allowed
+   after finalization.
+10. For write-flow testing, use only local Hardhat accounts or local balances.
 
 The demo seed creates local preview organizations and proposals by using the
 existing `@isonia/evm-contracts` seed script. It does not add new contract
@@ -120,9 +128,10 @@ behavior.
 
 The v0.7 setup flow is capability-aware. App Core reads
 `GET /v1/capabilities` from Control Plane and uses typed contract batch
-activation only when the configured contracts explicitly support it. Serial
-activation remains the fallback path. EIP-5792 wallet batching remains gated
-prototype behavior and is not the default execution path.
+activation and bootstrap finalization only when the configured contracts
+explicitly support them. Serial activation remains the fallback path. EIP-5792
+wallet batching remains gated prototype behavior and is not the default
+execution path.
 
 ## Runtime Files
 
@@ -154,11 +163,11 @@ Hardhat state changes.
 Edit `.env` for local ports and feature gates:
 
 ```txt
-APP_CORE_VERSION=0.7.0-alpha.1
-EVM_CONTRACTS_VERSION=0.7.0-alpha.1
-CONTROL_PLANE_VERSION=0.7.0-alpha.1
-TYPES_VERSION=0.7.0-alpha.1
-SDK_VERSION=0.7.0-alpha.1
+APP_CORE_VERSION=0.7.0-alpha.2
+EVM_CONTRACTS_VERSION=0.7.0-alpha.4
+CONTROL_PLANE_VERSION=0.7.0-alpha.2
+TYPES_VERSION=0.7.0-alpha.2
+SDK_VERSION=0.7.0-alpha.2
 DOCS_VERSION=0.7.0-alpha.1
 THEME_DEFAULT_VERSION=0.6.0-alpha.3
 API_PORT=3000
@@ -176,8 +185,8 @@ tags, Git tags, generated runtime metadata, and package version checks. Keep
 them without the leading `v`.
 
 `EVM_CONTRACTS_VERSION` is also written to `runtime/control-plane.env` so
-Control Plane can report whether contract batch activation is supported. This is
-non-secret capability metadata.
+Control Plane can report whether contract batch activation and bootstrap
+finalization are supported. This is non-secret capability metadata.
 
 `REOWN_PROJECT_ID` is empty by default. App Core remains usable through injected
 wallet fallback.
@@ -209,7 +218,8 @@ See [docs/troubleshooting.md](docs/troubleshooting.md) for common cases:
 - contracts-deploy cannot find deployed addresses.
 - Control Plane API unreachable.
 - indexer stale or projection backlog.
-- capabilities endpoint missing or contract batch unsupported.
+- capabilities endpoint missing, contract batch unsupported, or finalization unsupported.
+- finalization status unavailable or waiting for Control Plane indexing.
 - App Core points to wrong contract addresses.
 - browser wallet wrong chain or account not funded.
 - Hardhat restarted and stale addresses.

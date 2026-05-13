@@ -62,7 +62,7 @@ transactions. If the backlog does not drain, inspect:
 docker compose -f docker-compose.demo.yml logs control-plane
 ```
 
-## Capabilities endpoint missing or contract batch unsupported
+## Capabilities endpoint missing, contract batch unsupported, or finalization unsupported
 
 Control Plane v0.7 exposes:
 
@@ -70,12 +70,16 @@ Control Plane v0.7 exposes:
 curl http://localhost:3000/v1/capabilities
 ```
 
-Serial activation should be reported as available. Contract batch activation is
-reported as supported only when the generated Control Plane environment includes:
+Serial activation should be reported as available. Contract batch activation and
+bootstrap finalization are reported as supported only when the generated Control
+Plane environment includes a finalization-capable contracts version:
 
 ```txt
-EVM_CONTRACTS_VERSION=0.7.0-alpha.1
+EVM_CONTRACTS_VERSION=0.7.0-alpha.3
 ```
+
+`0.7.0-alpha.1` supports activation batch but not finalization. `0.7.0-alpha.2`
+and `0.7.0-alpha.3` support activation batch and bootstrap finalization.
 
 Check the generated file:
 
@@ -84,8 +88,8 @@ runtime/control-plane.env
 ```
 
 If the endpoint is missing, confirm the stack is using
-`CONTROL_PLANE_VERSION=0.7.0-alpha.1`. If contract batch is unsupported, confirm
-the stack is using `EVM_CONTRACTS_VERSION=0.7.0-alpha.1`, then reset and
+`CONTROL_PLANE_VERSION=0.7.0-alpha.2`. If finalization is unsupported, confirm
+the stack is using `EVM_CONTRACTS_VERSION=0.7.0-alpha.3`, then reset and
 redeploy the local demo state.
 
 App Core reads capabilities from the configured `apiBaseUrl` in:
@@ -96,6 +100,71 @@ runtime/isonia.config.json
 
 The default browser API base URL is `http://localhost:3000`, with CORS allowing
 the local App Core host. EIP-5792 wallet batching is not the default path.
+
+## Finalization endpoint unavailable
+
+Control Plane v0.7.0-alpha.2 exposes:
+
+```sh
+curl http://localhost:3000/v1/orgs/<orgId>/finalization
+```
+
+Use an organization ID from App Core or `runtime/seed-output.json`. If the
+endpoint returns 404 for the route itself, rebuild with
+`CONTROL_PLANE_VERSION=0.7.0-alpha.2`. If it returns an organization-specific
+not found response, wait for indexing or confirm the org ID exists in the local
+seed output.
+
+## App Core finalization status unavailable
+
+App Core reads finalization state from the configured API base URL in:
+
+```txt
+runtime/isonia.config.json
+```
+
+Check that Control Plane is reachable from the browser at
+`http://localhost:3000`, then open `/v1/diagnostics`, `/v1/capabilities`, and
+the org finalization endpoint. A short unavailable state can be normal while the
+indexer and projection worker catch up after startup.
+
+## Finalization CTA disabled
+
+App Core disables or explains the finalization action when the connected wallet
+does not have indexed bootstrap admin authority, the organization is not active,
+the organization is already finalized, or capabilities report finalization as
+unsupported.
+
+Confirm the connected wallet is a local Hardhat account used by the seed/setup
+flow, then wait for Control Plane indexing if the transaction or account state
+changed recently.
+
+## Finalization transaction succeeded but UI still waits
+
+The contract transaction is authoritative as soon as it is mined on the local
+Hardhat chain, but App Core displays indexed Control Plane state. Wait for the
+indexer and projection worker to process the finalization event, then refresh
+the organization page if needed.
+
+Inspect progress with:
+
+```txt
+http://localhost:3000/v1/diagnostics
+http://localhost:3000/v1/diagnostics/indexer
+```
+
+## Old seed or deploy aliases no longer exist
+
+The demo stack uses the canonical local scripts from `@isonia/evm-contracts`:
+
+```sh
+corepack pnpm deploy:local
+corepack pnpm seed:local
+```
+
+Older aliases such as `deploy:developer-preview`, `seed:developer-preview`,
+`seed:v0.1`, and `seed:v0.5` are not part of this baseline. Update local notes
+or shell history that still references them.
 
 ## App Core points to wrong contract addresses
 
