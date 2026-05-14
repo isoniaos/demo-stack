@@ -23,7 +23,7 @@ const corsOrigins = readString(
 );
 const evmContractsVersion = readPackageVersion(
   "EVM_CONTRACTS_VERSION",
-  "0.7.0-alpha.5",
+  "0.7.0-alpha.6",
 );
 const versions = {
   evmContracts: toTag(evmContractsVersion),

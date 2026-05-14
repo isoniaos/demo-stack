@@ -75,7 +75,7 @@ bootstrap finalization are reported as supported only when the generated Control
 Plane environment includes a finalization-capable contracts version:
 
 ```txt
-EVM_CONTRACTS_VERSION=0.7.0-alpha.5
+EVM_CONTRACTS_VERSION=0.7.0-alpha.6
 ```
 
 `0.7.0-alpha.1` supports activation batch but not finalization. `0.7.0-alpha.2`
@@ -90,7 +90,7 @@ runtime/control-plane.env
 
 If the endpoint is missing, confirm the stack is using
 `CONTROL_PLANE_VERSION=0.7.0-alpha.2`. If finalization is unsupported, confirm
-the stack is using `EVM_CONTRACTS_VERSION=0.7.0-alpha.5`, then reset and
+the stack is using `EVM_CONTRACTS_VERSION=0.7.0-alpha.6`, then reset and
 redeploy the local demo state.
 
 App Core reads capabilities from the configured `apiBaseUrl` in:
@@ -199,12 +199,16 @@ override can shadow the demo-stack generated runtime config.
 
 ## Wallet provider simulation noise in Hardhat logs
 
-Normal demo mode keeps Hardhat request logging quiet. If verbose logging is
-enabled, browser wallets or wallet UX providers may still make preflight
-`eth_call`, gas estimation, capability, or smart-account simulation requests
-before showing a confirmation. These calls can omit `from`, so Hardhat displays
-the first local account, `0xf39f...`, even when the real transaction is later
-sent by the connected admin wallet.
+Normal demo mode keeps Hardhat request logging quiet. The Hardhat container
+starts through `@isonia/evm-contracts` `node:local`, selecting the configured
+`hardhatMainnet` simulated network while binding to `0.0.0.0` inside Docker.
+Because Hardhat's node task enables JSON-RPC request logging after startup,
+`node:local` turns that request logging back off in normal mode. If verbose
+logging is enabled, browser wallets or wallet UX providers may still make
+preflight `eth_call`, gas estimation, capability, or smart-account simulation
+requests before showing a confirmation. These calls can omit `from`, so Hardhat
+displays the first local account, `0xf39f...`, even when the real transaction is
+later sent by the connected admin wallet.
 
 Treat these lines as simulation noise when all of these are true:
 
@@ -217,7 +221,9 @@ Treat these lines as simulation noise when all of these are true:
   `runtime/isonia.config.json` use the same contract addresses.
 
 If App Core shows a failed transaction, or no transaction hash is produced,
-debug it as an actual transaction failure instead of suppressing logs.
+debug it as an actual transaction failure instead of suppressing logs. Actual
+transaction failures and Control Plane indexing/projection failures remain
+visible through App Core, diagnostics, or service logs.
 
 ## Hardhat verbose logging
 

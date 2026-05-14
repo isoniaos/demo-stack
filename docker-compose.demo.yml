@@ -28,11 +28,14 @@ services:
         EVM_CONTRACTS_TAG: v${EVM_CONTRACTS_VERSION}
         EVM_CONTRACTS_VERSION: ${EVM_CONTRACTS_VERSION}
     environment:
+      HARDHAT_NODE_HOST: "0.0.0.0"
+      HARDHAT_NODE_NETWORK: "hardhatMainnet"
+      HARDHAT_NODE_PORT: "8545"
       HARDHAT_VERBOSE_LOGS: "${HARDHAT_VERBOSE_LOGS:-false}"
     command:
       - bash
       - -lc
-      - corepack pnpm hardhat node --hostname 0.0.0.0 --port 8545
+      - corepack pnpm node:local
     ports:
       - "127.0.0.1:${HARDHAT_PORT:-8545}:8545"
 

@@ -30,7 +30,7 @@ version variables:
 | `@isonia/sdk` | `v0.7.0-alpha.2` |
 | `@isonia/theme-default` | `v0.6.0-alpha.3` |
 | `@isonia/control-plane` | `v0.7.0-alpha.2` |
-| `@isonia/evm-contracts` | `v0.7.0-alpha.5` |
+| `@isonia/evm-contracts` | `v0.7.0-alpha.6` |
 | `@isonia/app-core` | `v0.7.0-alpha.4` |
 | `isoniaos/docs` | `v0.7.0-alpha.1` plus finalization design commit `5ee1dd6eb6f35a439957cee7a1037b92ec11f289` |
 
@@ -114,7 +114,7 @@ Open:
 4. Open Control Plane `/v1/diagnostics` and `/v1/capabilities`. Confirm the API
    is healthy, the indexer is caught up, serial activation is available, and
    contract batch activation plus bootstrap finalization are reported as
-   supported for `EVM_CONTRACTS_VERSION=0.7.0-alpha.5`.
+   supported for `EVM_CONTRACTS_VERSION=0.7.0-alpha.6`.
 5. Connect a browser wallet to chain ID `31337` with RPC URL
    `http://127.0.0.1:8545`.
 6. Browse seeded organizations, governance structure, proposals, routes, and the
@@ -174,7 +174,7 @@ Edit `.env` for local ports and feature gates:
 
 ```txt
 APP_CORE_VERSION=0.7.0-alpha.4
-EVM_CONTRACTS_VERSION=0.7.0-alpha.5
+EVM_CONTRACTS_VERSION=0.7.0-alpha.6
 CONTROL_PLANE_VERSION=0.7.0-alpha.2
 TYPES_VERSION=0.7.0-alpha.2
 SDK_VERSION=0.7.0-alpha.2
@@ -206,8 +206,22 @@ if a local Reown project ID is present. Set `WALLET_CONNECTION_MODE=appkit` only
 when explicitly testing Reown/AppKit wallet UX.
 
 `HARDHAT_VERBOSE_LOGS=false` keeps normal demo logs focused on service state and
-successful transactions. Set it to `true` before startup to restore Hardhat node
-request logs while debugging chain calls.
+successful transactions. The Hardhat service starts through
+`@isonia/evm-contracts` `node:local`, with the `hardhatMainnet` simulated
+network selected explicitly and the container bind host set to `0.0.0.0`.
+Because Hardhat's node task enables JSON-RPC request logging after startup,
+`node:local` turns that request logging back off in normal mode. Set
+`HARDHAT_VERBOSE_LOGS=true` before startup to preserve Hardhat node request logs
+while debugging chain calls.
+
+Browser wallets and wallet providers may still perform preflight simulations
+when a transaction modal opens. In normal demo mode those Hardhat request traces
+are quiet. If verbose logs show reverted `eth_call` traces from the first
+Hardhat account, `0xf39f...`, while the actual transaction is sent from the
+connected wallet, mined, indexed, and reflected in App Core, treat those traces
+as wallet/provider simulation noise rather than a product failure. Actual
+transaction failures remain visible in the wallet/App Core flow, and Control
+Plane indexing failures remain visible in diagnostics and service logs.
 
 Postgres is exposed only inside the Compose network by default. If you need host
 access, add a local Compose override that maps `127.0.0.1:5432:5432`.
