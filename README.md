@@ -30,8 +30,8 @@ version variables:
 | `@isonia/sdk` | `v0.7.0-alpha.2` |
 | `@isonia/theme-default` | `v0.6.0-alpha.3` |
 | `@isonia/control-plane` | `v0.7.0-alpha.2` |
-| `@isonia/evm-contracts` | `v0.7.0-alpha.4` |
-| `@isonia/app-core` | `v0.7.0-alpha.3` |
+| `@isonia/evm-contracts` | `v0.7.0-alpha.5` |
+| `@isonia/app-core` | `v0.7.0-alpha.4` |
 | `isoniaos/docs` | `v0.7.0-alpha.1` plus finalization design commit `5ee1dd6eb6f35a439957cee7a1037b92ec11f289` |
 
 The docs tag is listed for alignment. This stack does not clone the docs repo at
@@ -114,7 +114,7 @@ Open:
 4. Open Control Plane `/v1/diagnostics` and `/v1/capabilities`. Confirm the API
    is healthy, the indexer is caught up, serial activation is available, and
    contract batch activation plus bootstrap finalization are reported as
-   supported for `EVM_CONTRACTS_VERSION=0.7.0-alpha.4`.
+   supported for `EVM_CONTRACTS_VERSION=0.7.0-alpha.5`.
 5. Connect a browser wallet to chain ID `31337` with RPC URL
    `http://127.0.0.1:8545`.
 6. Browse seeded organizations, governance structure, proposals, routes, and the
@@ -173,8 +173,8 @@ the seeded contract addresses in `runtime/seed-output.json`.
 Edit `.env` for local ports and feature gates:
 
 ```txt
-APP_CORE_VERSION=0.7.0-alpha.3
-EVM_CONTRACTS_VERSION=0.7.0-alpha.4
+APP_CORE_VERSION=0.7.0-alpha.4
+EVM_CONTRACTS_VERSION=0.7.0-alpha.5
 CONTROL_PLANE_VERSION=0.7.0-alpha.2
 TYPES_VERSION=0.7.0-alpha.2
 SDK_VERSION=0.7.0-alpha.2
@@ -185,6 +185,8 @@ APP_PORT=5173
 HARDHAT_RPC_URL=http://127.0.0.1:8545
 CHAIN_ID=31337
 REOWN_PROJECT_ID=
+WALLET_CONNECTION_MODE=injected-only
+HARDHAT_VERBOSE_LOGS=false
 createProposal=true
 writeActions=true
 manageOrg=true
@@ -198,8 +200,14 @@ them without the leading `v`.
 Control Plane can report whether contract batch activation and bootstrap
 finalization are supported. This is non-secret capability metadata.
 
-`REOWN_PROJECT_ID` is empty by default. App Core remains usable through injected
-wallet fallback.
+`REOWN_PROJECT_ID` is empty by default and `WALLET_CONNECTION_MODE` defaults to
+`injected-only`. App Core remains usable through injected wallet fallback even
+if a local Reown project ID is present. Set `WALLET_CONNECTION_MODE=appkit` only
+when explicitly testing Reown/AppKit wallet UX.
+
+`HARDHAT_VERBOSE_LOGS=false` keeps normal demo logs focused on service state and
+successful transactions. Set it to `true` before startup to restore Hardhat node
+request logs while debugging chain calls.
 
 Postgres is exposed only inside the Compose network by default. If you need host
 access, add a local Compose override that maps `127.0.0.1:5432:5432`.
@@ -241,6 +249,8 @@ See [docs/troubleshooting.md](docs/troubleshooting.md) for common cases:
 - finalization status unavailable or waiting for Control Plane indexing.
 - App Core points to wrong contract addresses.
 - browser wallet wrong chain or account not funded.
+- wallet/provider simulation noise in Hardhat logs.
+- Hardhat verbose logging.
 - Hardhat restarted and stale addresses.
 - DemoTarget hash mismatch.
 - ports already in use.

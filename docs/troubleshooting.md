@@ -75,7 +75,7 @@ bootstrap finalization are reported as supported only when the generated Control
 Plane environment includes a finalization-capable contracts version:
 
 ```txt
-EVM_CONTRACTS_VERSION=0.7.0-alpha.4
+EVM_CONTRACTS_VERSION=0.7.0-alpha.5
 ```
 
 `0.7.0-alpha.1` supports activation batch but not finalization. `0.7.0-alpha.2`
@@ -90,7 +90,7 @@ runtime/control-plane.env
 
 If the endpoint is missing, confirm the stack is using
 `CONTROL_PLANE_VERSION=0.7.0-alpha.2`. If finalization is unsupported, confirm
-the stack is using `EVM_CONTRACTS_VERSION=0.7.0-alpha.4`, then reset and
+the stack is using `EVM_CONTRACTS_VERSION=0.7.0-alpha.5`, then reset and
 redeploy the local demo state.
 
 App Core reads capabilities from the configured `apiBaseUrl` in:
@@ -196,6 +196,39 @@ If you are testing an adjacent local App Core dev server instead of the Docker
 image, check for a stale `public/isonia.config.local.json` in `app-core`. App
 Core loads `/isonia.config.local.json` before `/isonia.config.json`, so a local
 override can shadow the demo-stack generated runtime config.
+
+## Wallet provider simulation noise in Hardhat logs
+
+Normal demo mode keeps Hardhat request logging quiet. If verbose logging is
+enabled, browser wallets or wallet UX providers may still make preflight
+`eth_call`, gas estimation, capability, or smart-account simulation requests
+before showing a confirmation. These calls can omit `from`, so Hardhat displays
+the first local account, `0xf39f...`, even when the real transaction is later
+sent by the connected admin wallet.
+
+Treat these lines as simulation noise when all of these are true:
+
+- App Core shows the transaction as submitted, confirmed, and indexed.
+- The successful transaction hash in Hardhat or the wallet is from the connected
+  admin wallet.
+- Control Plane diagnostics show no indexing or projection backlog that fails to
+  drain.
+- `runtime/deployed-addresses.json`, `runtime/control-plane.env`, and
+  `runtime/isonia.config.json` use the same contract addresses.
+
+If App Core shows a failed transaction, or no transaction hash is produced,
+debug it as an actual transaction failure instead of suppressing logs.
+
+## Hardhat verbose logging
+
+Set this before startup to restore detailed Hardhat request logs:
+
+```sh
+HARDHAT_VERBOSE_LOGS=true docker compose --env-file .env.demo.example -f docker-compose.demo.yml up
+```
+
+Leave `HARDHAT_VERBOSE_LOGS=false` for normal demos. This changes only console
+verbosity; it does not relax Solidity reverts or Hardhat call-failure behavior.
 
 ## App Core image uses an older fix
 

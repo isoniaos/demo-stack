@@ -23,14 +23,14 @@ const corsOrigins = readString(
 );
 const evmContractsVersion = readPackageVersion(
   "EVM_CONTRACTS_VERSION",
-  "0.7.0-alpha.4",
+  "0.7.0-alpha.5",
 );
 const versions = {
   evmContracts: toTag(evmContractsVersion),
   controlPlane: toTag(
     readPackageVersion("CONTROL_PLANE_VERSION", "0.7.0-alpha.2"),
   ),
-  appCore: toTag(readPackageVersion("APP_CORE_VERSION", "0.7.0-alpha.3")),
+  appCore: toTag(readPackageVersion("APP_CORE_VERSION", "0.7.0-alpha.4")),
   sdk: toTag(readPackageVersion("SDK_VERSION", "0.7.0-alpha.2")),
   themeDefault: toTag(
     readPackageVersion("THEME_DEFAULT_VERSION", "0.6.0-alpha.3"),
@@ -116,6 +116,7 @@ writeJson(path.join(runtimeDir, "isonia.config.json"), {
     timeoutMs: 1500,
   },
   wallet: {
+    connectionMode: readWalletConnectionMode("WALLET_CONNECTION_MODE"),
     reownProjectId: readString("REOWN_PROJECT_ID", ""),
     appUrl: `http://localhost:${appPort}`,
     icons: [],
@@ -251,6 +252,17 @@ function readBoolean(name, fallback) {
   if (raw === "true") return true;
   if (raw === "false") return false;
   throw new Error(`Invalid boolean environment variable ${name}: ${raw}`);
+}
+
+function readWalletConnectionMode(name) {
+  const value = readString(name, "injected-only");
+  if (["auto", "appkit", "injected-only"].includes(value)) {
+    return value;
+  }
+  throw new Error(
+    `Invalid wallet connection mode ${name}: ${value}. ` +
+      "Expected auto, appkit, or injected-only.",
+  );
 }
 
 function envLine(name, value) {

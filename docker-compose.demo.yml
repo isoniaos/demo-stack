@@ -27,6 +27,8 @@ services:
       args:
         EVM_CONTRACTS_TAG: v${EVM_CONTRACTS_VERSION}
         EVM_CONTRACTS_VERSION: ${EVM_CONTRACTS_VERSION}
+    environment:
+      HARDHAT_VERBOSE_LOGS: "${HARDHAT_VERBOSE_LOGS:-false}"
     command:
       - bash
       - -lc
@@ -52,6 +54,7 @@ services:
       EVM_CONTRACTS_VERSION: "${EVM_CONTRACTS_VERSION}"
       EVM_CONTRACTS_TAG: "v${EVM_CONTRACTS_VERSION}"
       HARDHAT_RPC_URL: "http://127.0.0.1:8545"
+      WALLET_CONNECTION_MODE: "${WALLET_CONNECTION_MODE:-injected-only}"
       POSTGRES_DB: "${POSTGRES_DB:-isonia_demo}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-isonia_local_demo_password}"
       POSTGRES_USER: "${POSTGRES_USER:-isonia}"
@@ -156,6 +159,7 @@ services:
           echo "[app-core] waiting for /runtime/isonia.config.json"
           sleep 1
         done
+        rm -f /opt/isonia/app-core/dist/isonia.config.local.json
         cp /runtime/isonia.config.json /opt/isonia/app-core/dist/isonia.config.json
         bash /demo/scripts/wait-for-http.sh "http://control-plane:${API_PORT:-3000}/v1/diagnostics" get 180
         bash /demo/scripts/wait-for-http.sh "http://control-plane:${API_PORT:-3000}/v1/capabilities" get 180
