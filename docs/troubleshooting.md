@@ -75,11 +75,12 @@ bootstrap finalization are reported as supported only when the generated Control
 Plane environment includes a finalization-capable contracts version:
 
 ```txt
-EVM_CONTRACTS_VERSION=0.7.0-alpha.3
+EVM_CONTRACTS_VERSION=0.7.0-alpha.4
 ```
 
 `0.7.0-alpha.1` supports activation batch but not finalization. `0.7.0-alpha.2`
-and `0.7.0-alpha.3` support activation batch and bootstrap finalization.
+and later v0.7 alpha contract tags support activation batch and bootstrap
+finalization.
 
 Check the generated file:
 
@@ -89,7 +90,7 @@ runtime/control-plane.env
 
 If the endpoint is missing, confirm the stack is using
 `CONTROL_PLANE_VERSION=0.7.0-alpha.2`. If finalization is unsupported, confirm
-the stack is using `EVM_CONTRACTS_VERSION=0.7.0-alpha.3`, then reset and
+the stack is using `EVM_CONTRACTS_VERSION=0.7.0-alpha.4`, then reset and
 redeploy the local demo state.
 
 App Core reads capabilities from the configured `apiBaseUrl` in:
@@ -162,9 +163,8 @@ corepack pnpm deploy:local
 corepack pnpm seed:local
 ```
 
-Older aliases such as `deploy:developer-preview`, `seed:developer-preview`,
-`seed:v0.1`, and `seed:v0.5` are not part of this baseline. Update local notes
-or shell history that still references them.
+Older preview-specific deploy or seed aliases are not part of this baseline.
+Update local notes or shell history that still references them.
 
 ## App Core points to wrong contract addresses
 
@@ -182,6 +182,31 @@ runtime/deployed-addresses.json
 
 If Hardhat restarted but old runtime or Postgres state remains, reset the demo
 state and bring the stack up again.
+
+`contracts-deploy` runs `scripts/validate-runtime-addresses.mjs` to fail fast
+when Ignition output, generated runtime files, or seed output disagree about the
+GovCore, GovProposals, or DemoTarget addresses. You can also run it manually
+after a deploy:
+
+```sh
+node scripts/validate-runtime-addresses.mjs --require-seed
+```
+
+If you are testing an adjacent local App Core dev server instead of the Docker
+image, check for a stale `public/isonia.config.local.json` in `app-core`. App
+Core loads `/isonia.config.local.json` before `/isonia.config.json`, so a local
+override can shadow the demo-stack generated runtime config.
+
+## App Core image uses an older fix
+
+The App Core Docker image clones `app-core` by `APP_CORE_TAG=v${APP_CORE_VERSION}`
+and then verifies `package.json.version`. A fix on `app-core/main` is not used by
+this stack until it is tagged and `APP_CORE_VERSION` is updated. After changing
+versions, rebuild without cache if the old image may still be present:
+
+```sh
+docker compose --env-file .env.demo.example -f docker-compose.demo.yml build --no-cache app-core
+```
 
 ## Browser wallet wrong chain
 

@@ -31,7 +31,7 @@ version variables:
 | `@isonia/theme-default` | `v0.6.0-alpha.3` |
 | `@isonia/control-plane` | `v0.7.0-alpha.2` |
 | `@isonia/evm-contracts` | `v0.7.0-alpha.4` |
-| `@isonia/app-core` | `v0.7.0-alpha.2` |
+| `@isonia/app-core` | `v0.7.0-alpha.3` |
 | `isoniaos/docs` | `v0.7.0-alpha.1` plus finalization design commit `5ee1dd6eb6f35a439957cee7a1037b92ec11f289` |
 
 The docs tag is listed for alignment. This stack does not clone the docs repo at
@@ -42,6 +42,12 @@ versions. Keep the values without the leading `v`.
 
 Copy `.env.demo.example` to `.env` before running Compose so these required
 version variables are present.
+
+Docker builds `app-core` from Git tag `v${APP_CORE_VERSION}` and verifies that
+the cloned `package.json.version` equals `APP_CORE_VERSION`. Changes committed
+to `app-core/main` are not included in this demo image until the matching tag
+exists, unless you intentionally change the Dockerfile or build args for local
+development.
 
 ## Build Security Note
 
@@ -108,7 +114,7 @@ Open:
 4. Open Control Plane `/v1/diagnostics` and `/v1/capabilities`. Confirm the API
    is healthy, the indexer is caught up, serial activation is available, and
    contract batch activation plus bootstrap finalization are reported as
-   supported for `EVM_CONTRACTS_VERSION=0.7.0-alpha.3`.
+   supported for `EVM_CONTRACTS_VERSION=0.7.0-alpha.4`.
 5. Connect a browser wallet to chain ID `31337` with RPC URL
    `http://127.0.0.1:8545`.
 6. Browse seeded organizations, governance structure, proposals, routes, and the
@@ -158,12 +164,16 @@ Hardhat Ignition deployed_addresses.json
 Do not hardcode contract addresses in `.env`. Reset and redeploy when local
 Hardhat state changes.
 
+`contracts-deploy` validates that the generated runtime address set matches
+Ignition output, `runtime/control-plane.env`, `runtime/isonia.config.json`, and
+the seeded contract addresses in `runtime/seed-output.json`.
+
 ## Configuration
 
 Edit `.env` for local ports and feature gates:
 
 ```txt
-APP_CORE_VERSION=0.7.0-alpha.2
+APP_CORE_VERSION=0.7.0-alpha.3
 EVM_CONTRACTS_VERSION=0.7.0-alpha.4
 CONTROL_PLANE_VERSION=0.7.0-alpha.2
 TYPES_VERSION=0.7.0-alpha.2
@@ -210,6 +220,15 @@ bash scripts/reset-demo.sh --yes
 
 This deletes local Postgres data and generated runtime files. It does not create
 or delete Git tags.
+
+When debugging a version change or stale runtime state, use a clean rebuild:
+
+```sh
+docker compose --env-file .env.demo.example -f docker-compose.demo.yml down -v
+bash scripts/reset-demo.sh --yes
+docker compose --env-file .env.demo.example -f docker-compose.demo.yml build --no-cache
+docker compose --env-file .env.demo.example -f docker-compose.demo.yml up
+```
 
 ## Troubleshooting
 

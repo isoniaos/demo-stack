@@ -63,6 +63,7 @@ log "generating runtime config from ${addresses_file}"
 DEPLOYED_ADDRESSES_SOURCE="$addresses_file" \
   RUNTIME_DIR="$RUNTIME_DIR" \
   node "${SCRIPT_DIR}/generate-runtime-config.mjs"
+node "${SCRIPT_DIR}/validate-runtime-addresses.mjs"
 
 set -a
 . "${RUNTIME_DIR}/control-plane.env"
@@ -71,6 +72,7 @@ set +a
 if [ "$RUN_SEED" = "true" ]; then
   log "seeding local demo organizations and proposals"
   corepack pnpm seed:local | tee "${RUNTIME_DIR}/seed-output.json"
+  node "${SCRIPT_DIR}/validate-runtime-addresses.mjs" --require-seed
 fi
 
 log "runtime files written to ${RUNTIME_DIR}"
