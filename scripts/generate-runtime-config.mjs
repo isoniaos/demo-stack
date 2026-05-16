@@ -30,13 +30,13 @@ const versions = {
   controlPlane: toTag(
     readPackageVersion("CONTROL_PLANE_VERSION", "0.7.0-alpha.2"),
   ),
-  appCore: toTag(readPackageVersion("APP_CORE_VERSION", "0.7.0-alpha.4")),
+  appCore: toTag(readPackageVersion("APP_CORE_VERSION", "0.7.0-alpha.5")),
   sdk: toTag(readPackageVersion("SDK_VERSION", "0.7.0-alpha.2")),
   themeDefault: toTag(
     readPackageVersion("THEME_DEFAULT_VERSION", "0.6.0-alpha.3"),
   ),
   types: toTag(readPackageVersion("TYPES_VERSION", "0.7.0-alpha.2")),
-  docs: toTag(readPackageVersion("DOCS_VERSION", "0.7.0-alpha.1")),
+  docs: toTag(readPackageVersion("DOCS_VERSION", "0.7.0-alpha.6")),
 };
 
 const raw = readJson(sourcePath);

@@ -31,8 +31,8 @@ version variables:
 | `@isonia/theme-default` | `v0.6.0-alpha.3` |
 | `@isonia/control-plane` | `v0.7.0-alpha.2` |
 | `@isonia/evm-contracts` | `v0.7.0-alpha.6` |
-| `@isonia/app-core` | `v0.7.0-alpha.4` |
-| `isoniaos/docs` | `v0.7.0-alpha.1` plus finalization design commit `5ee1dd6eb6f35a439957cee7a1037b92ec11f289` |
+| `@isonia/app-core` | `v0.7.0-alpha.5` |
+| `isoniaos/docs` | `v0.7.0-alpha.6` |
 
 The docs tag is listed for alignment. This stack does not clone the docs repo at
 runtime.
@@ -173,12 +173,12 @@ the seeded contract addresses in `runtime/seed-output.json`.
 Edit `.env` for local ports and feature gates:
 
 ```txt
-APP_CORE_VERSION=0.7.0-alpha.4
+APP_CORE_VERSION=0.7.0-alpha.5
 EVM_CONTRACTS_VERSION=0.7.0-alpha.6
 CONTROL_PLANE_VERSION=0.7.0-alpha.2
 TYPES_VERSION=0.7.0-alpha.2
 SDK_VERSION=0.7.0-alpha.2
-DOCS_VERSION=0.7.0-alpha.1
+DOCS_VERSION=0.7.0-alpha.6
 THEME_DEFAULT_VERSION=0.6.0-alpha.3
 API_PORT=3000
 APP_PORT=5173

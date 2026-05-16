@@ -6,6 +6,11 @@ Git tags use a leading `v`, for example `v0.7.0-alpha.4`.
 
 ## [Unreleased]
 
+### Changed
+
+- Update the local v0.7 demo stack to `@isonia/app-core v0.7.0-alpha.5` for
+  the polished setup, activation, transaction modal, and breadcrumb UI.
+
 ## [0.7.0-alpha.5]
 
 ### Added
