@@ -13,12 +13,24 @@ The deploy script expects Hardhat Ignition output under:
 ignition/deployments/*/deployed_addresses.json
 ```
 
-For v0.7 it recognizes these keys:
+It recognizes these required keys:
 
 ```txt
 IsoniaProtocolV01Module#GovCore
 IsoniaProtocolV01Module#GovProposals
 IsoniaProtocolV01Module#DemoTarget
+```
+
+For v0.8 it also recognizes optional `IsoDemoVotesToken` output from Ignition
+or normalized runtime files, including:
+
+```txt
+IsoniaProtocolV01Module#IsoDemoVotesToken
+contracts.demoVotesTokenAddress
+contracts.demoVotesToken
+demoVotesTokenAddress
+demoVotesToken
+IsoDemoVotesToken
 ```
 
 Reset the stack and redeploy:
@@ -72,10 +84,12 @@ curl http://localhost:3000/v1/capabilities
 
 Serial activation should be reported as available. Contract batch activation and
 bootstrap finalization are reported as supported only when the generated Control
-Plane environment includes a finalization-capable contracts version:
+Plane environment includes a finalization-capable contracts version. The v0.8
+contract baseline keeps those v0.7 capabilities and adds local accountability
+target actions:
 
 ```txt
-EVM_CONTRACTS_VERSION=0.7.0-alpha.6
+EVM_CONTRACTS_VERSION=0.8.0-alpha.1
 ```
 
 `0.7.0-alpha.1` supports activation batch but not finalization. `0.7.0-alpha.2`
@@ -90,7 +104,7 @@ runtime/control-plane.env
 
 If the endpoint is missing, confirm the stack is using
 `CONTROL_PLANE_VERSION=0.7.0-alpha.2`. If finalization is unsupported, confirm
-the stack is using `EVM_CONTRACTS_VERSION=0.7.0-alpha.6`, then reset and
+the stack is using `EVM_CONTRACTS_VERSION=0.8.0-alpha.1`, then reset and
 redeploy the local demo state.
 
 App Core reads capabilities from the configured `apiBaseUrl` in:
@@ -185,12 +199,87 @@ state and bring the stack up again.
 
 `contracts-deploy` runs `scripts/validate-runtime-addresses.mjs` to fail fast
 when Ignition output, generated runtime files, or seed output disagree about the
-GovCore, GovProposals, or DemoTarget addresses. You can also run it manually
-after a deploy:
+GovCore, GovProposals, DemoTarget, or optional IsoDemoVotesToken addresses. You
+can also run it manually after a deploy:
 
 ```sh
 node scripts/validate-runtime-addresses.mjs --require-seed
 ```
+
+If `IsoDemoVotesToken` appears in one runtime source but not another during a
+v0.8 run, reset and redeploy. For v0.7 compatibility the token may be absent
+everywhere, but it must not be partially or inconsistently present.
+
+## v0.8 seed-output validation failed
+
+`contracts-deploy` runs `scripts/validate-v08-seed-output.mjs` when
+`VALIDATE_V08_SEED=true` or when `EVM_CONTRACTS_VERSION` is v0.8 or later. The
+script validates the minimum bridge shape needed by this repository:
+
+```txt
+contracts.govCore
+contracts.govProposals
+contracts.demoTarget
+organizations.simple.accountability.executedFeatureProposal
+organizations.simple.accountability.pendingObligationProposal
+organizations.simple.proposals.executedFeatureProposalId
+organizations.simple.proposals.pendingObligationProposalId
+```
+
+If the deployed `IsoDemoVotesToken` is present, the validator also checks
+`contracts.demoVotesToken`, `demoVotes.token`, `demoVotes.holders`, and
+`demoVotes.delegated === true`.
+
+Failures usually mean the demo stack is using an older `@isonia/evm-contracts`
+tag, stale runtime files, or a changed seed shape. Confirm:
+
+```txt
+EVM_CONTRACTS_VERSION=0.8.0-alpha.1
+VALIDATE_V08_SEED=true
+```
+
+Then reset and redeploy.
+
+## Missing v0.8 accountability manifest
+
+For v0.8 runs, seeding should write:
+
+```txt
+runtime/v0.8-accountability-demo.json
+```
+
+This file is generated from `runtime/seed-output.json`; it is not produced by
+Control Plane or App Core. If it is missing, confirm seed validation ran, then
+run:
+
+```sh
+node scripts/validate-v08-seed-output.mjs
+node scripts/generate-v08-accountability-manifest.mjs
+```
+
+The manifest is a local fixture/bridge artifact for future archive and
+accountability API/UI work. It does not create protocol authority, and it does
+not invent transaction hashes when the seed output does not include them.
+
+## v0.8 contracts with v0.7 Control Plane or App Core
+
+This bridge intentionally runs `@isonia/evm-contracts v0.8.0-alpha.1` with the
+latest working v0.7 Control Plane/App Core tags. The contracts can emit v0.8
+demo target events before current Control Plane projections or App Core screens
+expose public archive/accountability surfaces.
+
+Use contract state, seed output, and `runtime/v0.8-accountability-demo.json` as
+the local development bridge. Do not treat missing v0.8 UI or REST archive
+fields as a deployment failure in this repository.
+
+## External evidence fixtures are not authority
+
+The v0.8 manifest may include static links for GitHub, documentation, or other
+provider-like context. The demo stack does not call Snapshot, Safe, Tally,
+Agora, Discourse, GitHub APIs, or block explorer APIs. Provider-like records
+must keep their source label, trust boundary, authority claim, and import status
+visible. Treat them as context or manual annotation unless a future
+onchain/read-model surface explicitly models authority for that field.
 
 If you are testing an adjacent local App Core dev server instead of the Docker
 image, check for a stale `public/isonia.config.local.json` in `app-core`. App
@@ -277,7 +366,9 @@ Then start the stack again.
 
 ## DemoTarget hash mismatch
 
-App Core executes the local demo path for `DemoTarget.setNumber`. If the
+App Core v0.7 still knows the local demo path for `DemoTarget.setNumber`. The
+v0.8 seed also creates target actions such as `setFeatureEnabled` and
+`markObligationAccepted` for future archive/accountability surfaces. If a
 proposal data hash does not match the configured `DemoTarget` address and
 encoded action, recreate the proposal after confirming:
 

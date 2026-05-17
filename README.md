@@ -1,20 +1,23 @@
-# IsoniaOS v0.7 Local Docker Demo Stack
+# IsoniaOS v0.8 Local Accountability Demo Stack
 
 This repository provides a local Docker Compose stack for running the IsoniaOS
-v0.7 alpha demo on a developer machine. It exists to make local onboarding and
-design-partner walkthroughs easier.
+v0.8 accountability demo on a developer machine. It exists to make local
+onboarding, deterministic runtime testing, and design-partner walkthroughs
+easier.
 
-It is not a production deployment, audit reference, security guide, hosted SaaS
-environment, or replacement for the contracts. The contracts deployed to the
-local Hardhat chain remain the authority for governance state. Control Plane
-indexes chain events into raw events, projections, and read models, so API state
-can briefly lag chain state.
+It is a local developer/design-partner preview. It is not a production
+deployment, audit reference, security guide, hosted SaaS environment, or
+replacement for the contracts. The contracts deployed to the local Hardhat chain
+remain the authority for modeled onchain governance state. Control Plane indexes
+chain events into raw events, projections, and read models, so API state can lag
+chain state. External links and manual records in this stack are context or
+annotation unless an onchain model explicitly makes them authoritative.
 
 ## Services
 
 - `postgres`: local Control Plane database.
 - `hardhat`: local Hardhat JSON-RPC node on `http://localhost:8545`.
-- `contracts-deploy`: deploys and seeds the v0.7 demo contracts.
+- `contracts-deploy`: deploys and seeds the v0.8 demo contracts.
 - `control-plane-migrate`: runs Control Plane database migrations.
 - `control-plane`: runs the REST API, indexer, and projection worker.
 - `app-core`: serves the built App Core SPA on `http://localhost:5173`.
@@ -26,16 +29,24 @@ version variables:
 
 | Package | Tag |
 | --- | --- |
-| `@isonia/types` | `v0.7.0-alpha.2` |
+| `@isonia/types` | `v0.8.0-alpha.1` |
 | `@isonia/sdk` | `v0.7.0-alpha.2` |
 | `@isonia/theme-default` | `v0.6.0-alpha.3` |
 | `@isonia/control-plane` | `v0.7.0-alpha.2` |
-| `@isonia/evm-contracts` | `v0.7.0-alpha.6` |
+| `@isonia/evm-contracts` | `v0.8.0-alpha.1` |
 | `@isonia/app-core` | `v0.7.0-alpha.5` |
-| `isoniaos/docs` | `v0.7.0-alpha.6` |
+| `isoniaos/docs` | `v0.8.0-alpha.2` |
 
 The docs tag is listed for alignment. This stack does not clone the docs repo at
 runtime.
+
+`@isonia/types` is pinned to `v0.8.0-alpha.1` as demo metadata alignment for the
+new accountability/public-archive DTO surface. The current
+`@isonia/control-plane v0.7.0-alpha.2`, `@isonia/app-core v0.7.0-alpha.5`, and
+`@isonia/sdk v0.7.0-alpha.2` images are still pinned to their latest working
+tags and may not bundle or expose those v0.8 types yet. This bridge lets the
+local stack deploy and seed the v0.8 contracts while later repositories add the
+v0.8 API and UI surfaces.
 
 The demo stack uses `.env` as the single source of truth for these repository
 versions. Keep the values without the leading `v`.
@@ -114,7 +125,7 @@ Open:
 4. Open Control Plane `/v1/diagnostics` and `/v1/capabilities`. Confirm the API
    is healthy, the indexer is caught up, serial activation is available, and
    contract batch activation plus bootstrap finalization are reported as
-   supported for `EVM_CONTRACTS_VERSION=0.7.0-alpha.6`.
+   supported for the configured contracts version.
 5. Connect a browser wallet to chain ID `31337` with RPC URL
    `http://127.0.0.1:8545`.
 6. Browse seeded organizations, governance structure, proposals, routes, and the
@@ -129,10 +140,12 @@ Open:
 10. For write-flow testing, use only local Hardhat accounts or local balances.
 
 The demo seed creates local preview organizations and proposals by using the
-existing `@isonia/evm-contracts` seed script. It does not add new contract
-behavior.
+existing `@isonia/evm-contracts` seed script. In v0.8 it also seeds one
+approved-and-executed accountability action, one approved-but-not-executed
+obligation action, and demo votes token mint/delegation data when
+`IsoDemoVotesToken` is deployed.
 
-The v0.7 setup flow is capability-aware. App Core reads
+The current setup flow is capability-aware. App Core reads
 `GET /v1/capabilities` from Control Plane and uses typed contract batch
 activation and bootstrap finalization only when the configured contracts
 explicitly support them. Serial activation remains the fallback path. EIP-5792
@@ -149,6 +162,7 @@ Generated files are written to the host-visible `runtime/` directory:
 | `runtime/control-plane.env` | Container-internal Control Plane environment. Uses `http://hardhat:8545`. |
 | `runtime/isonia.config.json` | Browser App Core runtime config. Uses `http://127.0.0.1:8545` and `http://localhost:3000`. |
 | `runtime/seed-output.json` | Seeded local accounts, organization IDs, body IDs, and proposal IDs. |
+| `runtime/v0.8-accountability-demo.json` | Demo-stack-generated v0.8 scenario manifest for future Control Plane/App Core archive and accountability work. |
 
 The deployed contract address flow is:
 
@@ -164,9 +178,19 @@ Hardhat Ignition deployed_addresses.json
 Do not hardcode contract addresses in `.env`. Reset and redeploy when local
 Hardhat state changes.
 
+`runtime/seed-output.json` comes from `@isonia/evm-contracts seed:local`.
+`runtime/v0.8-accountability-demo.json` is generated by this demo-stack from
+that seed output and static local fixture metadata. Neither file is a production
+source of authority. Current Control Plane/App Core tags may not expose v0.8
+public archive or accountability UI until those repositories receive matching
+runtime updates.
+
 `contracts-deploy` validates that the generated runtime address set matches
 Ignition output, `runtime/control-plane.env`, `runtime/isonia.config.json`, and
-the seeded contract addresses in `runtime/seed-output.json`.
+the seeded contract addresses in `runtime/seed-output.json`. `GovCore`,
+`GovProposals`, and `DemoTarget` are required. `IsoDemoVotesToken` is optional
+for v0.7 compatibility, but if it appears in any v0.8 generated source its
+address must match everywhere.
 
 ## Configuration
 
@@ -174,12 +198,13 @@ Edit `.env` for local ports and feature gates:
 
 ```txt
 APP_CORE_VERSION=0.7.0-alpha.5
-EVM_CONTRACTS_VERSION=0.7.0-alpha.6
+EVM_CONTRACTS_VERSION=0.8.0-alpha.1
 CONTROL_PLANE_VERSION=0.7.0-alpha.2
-TYPES_VERSION=0.7.0-alpha.2
+TYPES_VERSION=0.8.0-alpha.1
 SDK_VERSION=0.7.0-alpha.2
-DOCS_VERSION=0.7.0-alpha.6
+DOCS_VERSION=0.8.0-alpha.2
 THEME_DEFAULT_VERSION=0.6.0-alpha.3
+VALIDATE_V08_SEED=true
 API_PORT=3000
 APP_PORT=5173
 HARDHAT_RPC_URL=http://127.0.0.1:8545
@@ -197,8 +222,10 @@ tags, Git tags, generated runtime metadata, and package version checks. Keep
 them without the leading `v`.
 
 `EVM_CONTRACTS_VERSION` is also written to `runtime/control-plane.env` so
-Control Plane can report whether contract batch activation and bootstrap
-finalization are supported. This is non-secret capability metadata.
+Control Plane can report whether known contract capabilities are supported. This
+is non-secret capability metadata. `VALIDATE_V08_SEED=true` enables the local
+v0.8 seed-output shape validation and writes
+`runtime/v0.8-accountability-demo.json` after seeding.
 
 `REOWN_PROJECT_ID` is empty by default and `WALLET_CONNECTION_MODE` defaults to
 `injected-only`. App Core remains usable through injected wallet fallback even
@@ -262,6 +289,8 @@ See [docs/troubleshooting.md](docs/troubleshooting.md) for common cases:
 - capabilities endpoint missing, contract batch unsupported, or finalization unsupported.
 - finalization status unavailable or waiting for Control Plane indexing.
 - App Core points to wrong contract addresses.
+- optional `IsoDemoVotesToken` address mismatch.
+- v0.8 seed-output or manifest generation failures.
 - browser wallet wrong chain or account not funded.
 - wallet/provider simulation noise in Hardhat logs.
 - Hardhat verbose logging.

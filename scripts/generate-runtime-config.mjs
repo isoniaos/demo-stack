@@ -23,7 +23,7 @@ const corsOrigins = readString(
 );
 const evmContractsVersion = readPackageVersion(
   "EVM_CONTRACTS_VERSION",
-  "0.7.0-alpha.6",
+  "0.8.0-alpha.1",
 );
 const versions = {
   evmContracts: toTag(evmContractsVersion),
@@ -35,8 +35,8 @@ const versions = {
   themeDefault: toTag(
     readPackageVersion("THEME_DEFAULT_VERSION", "0.6.0-alpha.3"),
   ),
-  types: toTag(readPackageVersion("TYPES_VERSION", "0.7.0-alpha.2")),
-  docs: toTag(readPackageVersion("DOCS_VERSION", "0.7.0-alpha.6")),
+  types: toTag(readPackageVersion("TYPES_VERSION", "0.8.0-alpha.1")),
+  docs: toTag(readPackageVersion("DOCS_VERSION", "0.8.0-alpha.2")),
 };
 
 const raw = readJson(sourcePath);
@@ -175,6 +175,14 @@ function resolveContracts(value, filePath) {
     ["demoTargetAddress"],
     ["demoTarget"],
   ]);
+  const demoVotesTokenAddress = firstAddress(value, [
+    ["contracts", "demoVotesTokenAddress"],
+    ["contracts", "demoVotesToken"],
+    ["IsoniaProtocolV01Module#IsoDemoVotesToken"],
+    ["IsoDemoVotesToken"],
+    ["demoVotesTokenAddress"],
+    ["demoVotesToken"],
+  ]);
 
   const missing = [];
   if (!govCoreAddress) missing.push("govCoreAddress");
@@ -194,6 +202,7 @@ function resolveContracts(value, filePath) {
     govCoreAddress,
     govProposalsAddress,
     demoTargetAddress,
+    ...(demoVotesTokenAddress === undefined ? {} : { demoVotesTokenAddress }),
   };
 }
 

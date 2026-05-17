@@ -3,7 +3,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 REPO_URL="${EVM_CONTRACTS_REPO_URL:-https://github.com/isoniaos/evm-contracts.git}"
-TAG="${EVM_CONTRACTS_TAG:-v0.7.0-alpha.6}"
+TAG="${EVM_CONTRACTS_TAG:-v0.8.0-alpha.1}"
+EVM_CONTRACTS_VERSION="${EVM_CONTRACTS_VERSION:-${TAG#v}}"
+export EVM_CONTRACTS_VERSION
 WORK_DIR="${DEMO_WORK_DIR:-/work}"
 CONTRACTS_DIR="${EVM_CONTRACTS_DIR:-${WORK_DIR}/evm-contracts}"
 RUNTIME_DIR="${RUNTIME_DIR:-/runtime}"
@@ -18,6 +20,20 @@ log() {
 fail() {
   printf '[contracts-deploy] ERROR: %s\n' "$*" >&2
   exit 1
+}
+
+should_validate_v08_seed() {
+  if [ "${VALIDATE_V08_SEED:-}" = "true" ]; then
+    return 0
+  fi
+  if [ "${VALIDATE_V08_SEED:-}" = "false" ]; then
+    return 1
+  fi
+
+  case "$EVM_CONTRACTS_VERSION" in
+    0.8.*|0.9.*|[1-9].*) return 0 ;;
+    *) return 1 ;;
+  esac
 }
 
 mkdir -p "$WORK_DIR" "$RUNTIME_DIR"
@@ -73,6 +89,10 @@ if [ "$RUN_SEED" = "true" ]; then
   log "seeding local demo organizations and proposals"
   corepack pnpm seed:local | tee "${RUNTIME_DIR}/seed-output.json"
   node "${SCRIPT_DIR}/validate-runtime-addresses.mjs" --require-seed
+  if should_validate_v08_seed; then
+    node "${SCRIPT_DIR}/validate-v08-seed-output.mjs"
+    node "${SCRIPT_DIR}/generate-v08-accountability-manifest.mjs"
+  fi
 fi
 
 log "runtime files written to ${RUNTIME_DIR}"

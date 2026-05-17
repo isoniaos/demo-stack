@@ -67,6 +67,7 @@ services:
       SDK_VERSION: "${SDK_VERSION}"
       THEME_DEFAULT_VERSION: "${THEME_DEFAULT_VERSION}"
       TYPES_VERSION: "${TYPES_VERSION}"
+      VALIDATE_V08_SEED: "${VALIDATE_V08_SEED:-true}"
       createProposal: "${createProposal:-true}"
       manageOrg: "${manageOrg:-true}"
       writeActions: "${writeActions:-true}"

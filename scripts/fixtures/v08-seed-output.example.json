@@ -1,0 +1,74 @@
+{
+  "chainId": 31337,
+  "contracts": {
+    "govCore": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+    "govProposals": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+    "demoTarget": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "demoVotesToken": "0x0165878A594ca255338adfa4d48449f69242Eb8F"
+  },
+  "sampleAccounts": {
+    "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "simpleAdmin": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    "bicameralAdmin": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+    "proposer": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+    "approverA": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+    "approverB": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+    "vetoer": "0x976EA74026E726554dB657fA54763abd0C3a0aa9",
+    "executor": "0x14dC79964da2C08b23698B3D3cc7Ca32193d9955"
+  },
+  "organizations": {
+    "simple": {
+      "orgId": "1",
+      "bodies": {
+        "council": "1",
+        "treasury": "2",
+        "security": "3"
+      },
+      "proposals": {
+        "standardProposalId": "1",
+        "treasuryProposalId": "2",
+        "executedFeatureProposalId": "3",
+        "pendingObligationProposalId": "4"
+      },
+      "accountability": {
+        "executedFeatureProposal": {
+          "proposalId": "3",
+          "action": "setFeatureEnabled",
+          "feature": "0x9e11f1a68d60a5e4a7a2b6d3c5b8919e19bd8f7feaf642d90aa988dc2e6af820",
+          "enabled": true,
+          "status": "executed"
+        },
+        "pendingObligationProposal": {
+          "proposalId": "4",
+          "action": "markObligationAccepted",
+          "obligationId": "0x51f74d2e82f5f9dd4e1e0f48ad0b37b7a14ffef6a3a9c6079f7c9c95c33d1009",
+          "status": "approved_not_executed"
+        }
+      }
+    },
+    "bicameral": {
+      "orgId": "2",
+      "bodies": {
+        "capital": "4",
+        "merit": "5",
+        "emergency": "6"
+      },
+      "proposals": {
+        "treasuryProposalId": "5",
+        "upgradeProposalId": "6"
+      }
+    }
+  },
+  "demoVotes": {
+    "token": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+    "symbol": "ISO-DEMO",
+    "mintAmount": "1000000000000000000000",
+    "delegated": true,
+    "holders": {
+      "proposer": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+      "approverA": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+      "approverB": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+      "executor": "0x14dC79964da2C08b23698B3D3cc7Ca32193d9955"
+    }
+  }
+}

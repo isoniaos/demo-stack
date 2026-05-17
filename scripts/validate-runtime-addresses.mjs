@@ -89,6 +89,11 @@ function readRuntimeContracts(value, source) {
       source,
       "demoTargetAddress",
     ),
+    demoVotesTokenAddress: optionalAddress(
+      contracts.demoVotesTokenAddress,
+      source,
+      "demoVotesTokenAddress",
+    ),
   };
 }
 
@@ -112,6 +117,19 @@ function compareIgnitionRaw(raw, expected, failures) {
     expected.demoTargetAddress,
     failures,
   );
+  compareOptionalAddress(
+    "Ignition IsoDemoVotesToken",
+    firstAddress(rawContracts, [
+      ["IsoniaProtocolV01Module#IsoDemoVotesToken"],
+      ["contracts", "demoVotesTokenAddress"],
+      ["contracts", "demoVotesToken"],
+      ["IsoDemoVotesToken"],
+      ["demoVotesTokenAddress"],
+      ["demoVotesToken"],
+    ]),
+    expected.demoVotesTokenAddress,
+    failures,
+  );
 }
 
 function compareContracts(label, actual, expected, failures) {
@@ -131,6 +149,12 @@ function compareContracts(label, actual, expected, failures) {
     `${label} DemoTarget`,
     actual.demoTargetAddress,
     expected.demoTargetAddress,
+    failures,
+  );
+  compareOptionalAddress(
+    `${label} IsoDemoVotesToken`,
+    actual.demoVotesTokenAddress,
+    expected.demoVotesTokenAddress,
     failures,
   );
 }
@@ -155,11 +179,47 @@ function compareSeedContracts(seedContracts, expected, failures) {
     expected.demoTargetAddress,
     failures,
   );
+  compareOptionalAddress(
+    "seed-output.json IsoDemoVotesToken",
+    contracts.demoVotesToken,
+    expected.demoVotesTokenAddress,
+    failures,
+  );
 }
 
 function compareAddress(label, actual, expected, failures) {
   if (!isAddress(actual)) {
     failures.push(`${label} is missing or invalid: ${String(actual)}`);
+    return;
+  }
+
+  if (actual.toLowerCase() !== expected.toLowerCase()) {
+    failures.push(`${label} ${actual} does not match expected ${expected}`);
+  }
+}
+
+function compareOptionalAddress(label, actual, expected, failures) {
+  const hasActual = actual !== undefined && actual !== null && actual !== "";
+  const hasExpected = expected !== undefined && expected !== null && expected !== "";
+
+  if (!hasActual && !hasExpected) {
+    return;
+  }
+
+  if (hasActual && !isAddress(actual)) {
+    failures.push(`${label} is present but invalid: ${String(actual)}`);
+    return;
+  }
+
+  if (hasExpected && !isAddress(expected)) {
+    failures.push(`${label} expected address is invalid: ${String(expected)}`);
+    return;
+  }
+
+  if (hasActual !== hasExpected) {
+    failures.push(
+      `${label} presence mismatch: actual ${String(actual)}, expected ${String(expected)}`,
+    );
     return;
   }
 
@@ -200,6 +260,16 @@ function requireAddress(value, source, field) {
   return value;
 }
 
+function optionalAddress(value, source, field) {
+  if (value === undefined || value === null || value === "") {
+    return undefined;
+  }
+  if (!isAddress(value)) {
+    throw new Error(`${source} has invalid optional ${field}: ${String(value)}`);
+  }
+  return value;
+}
+
 function asRecord(value) {
   return value && typeof value === "object" && !Array.isArray(value)
     ? value
@@ -208,4 +278,25 @@ function asRecord(value) {
 
 function isAddress(value) {
   return typeof value === "string" && /^0x[a-fA-F0-9]{40}$/.test(value);
+}
+
+function firstAddress(value, paths) {
+  for (const candidatePath of paths) {
+    const candidate = getPath(value, candidatePath);
+    if (candidate !== undefined) {
+      return candidate;
+    }
+  }
+  return undefined;
+}
+
+function getPath(value, keys) {
+  let current = value;
+  for (const key of keys) {
+    if (!current || typeof current !== "object" || !(key in current)) {
+      return undefined;
+    }
+    current = current[key];
+  }
+  return current;
 }
