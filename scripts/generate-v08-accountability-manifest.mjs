@@ -38,15 +38,7 @@ const manifest = {
   schemaVersion: "isoniaos.v0.8.accountability-demo-manifest.v1",
   generatedAt: deployed.generatedAt ?? "unknown",
   chainId: deployed.chainId ?? seedOutput.chainId ?? 31337,
-  versions: {
-    ...(asRecord(deployed.versions)),
-    types: process.env.TYPES_VERSION
-      ? toTag(process.env.TYPES_VERSION)
-      : asRecord(deployed.versions).types,
-    docs: process.env.DOCS_VERSION
-      ? toTag(process.env.DOCS_VERSION)
-      : asRecord(deployed.versions).docs,
-  },
+  runtimeVersions: readRuntimeVersions(deployed),
   contracts,
   sourceSeedOutput: relativeRuntimePath(seedOutputPath),
   organizations: [
@@ -124,7 +116,7 @@ function buildExternalContextScenario() {
         trustBoundary: "unverified_link",
         authorityClaim: "none",
         importStatus: "not_imported",
-        url: "https://github.com/isoniaos/docs/tree/v0.8.0-alpha.2",
+        url: "https://github.com/isoniaos/docs",
         note:
           "Static local fixture for context rendering only. No GitHub API is called and the link is not governance authority.",
       },
@@ -208,6 +200,28 @@ function relativeRuntimePath(filePath) {
   return relative.startsWith("..") ? filePath.replaceAll("\\", "/") : relative;
 }
 
-function toTag(version) {
-  return `v${String(version).replace(/^v/, "")}`;
+function readRuntimeVersions(deployed) {
+  const runtimeVersions = asRecord(deployed.runtimeVersions);
+  const legacyVersions = asRecord(deployed.versions);
+  return {
+    appCore: stripTag(
+      process.env.APP_CORE_VERSION ??
+        runtimeVersions.appCore ??
+        legacyVersions.appCore,
+    ),
+    controlPlane: stripTag(
+      process.env.CONTROL_PLANE_VERSION ??
+        runtimeVersions.controlPlane ??
+        legacyVersions.controlPlane,
+    ),
+    evmContracts: stripTag(
+      process.env.EVM_CONTRACTS_VERSION ??
+        runtimeVersions.evmContracts ??
+        legacyVersions.evmContracts,
+    ),
+  };
+}
+
+function stripTag(version) {
+  return typeof version === "string" ? version.replace(/^v/, "") : null;
 }

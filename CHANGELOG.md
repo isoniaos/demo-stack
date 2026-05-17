@@ -6,6 +6,14 @@ Git tags use a leading `v`, for example `v0.7.0-alpha.4`.
 
 ## [Unreleased]
 
+### Changed
+
+- Narrowed first-class demo-stack runtime version scope to App Core, Control
+  Plane, and EVM Contracts.
+- Removed redundant docs/types/sdk/theme version pins from demo-stack config,
+  docs, and runtime metadata while keeping the v0.8 accountability seed bridge
+  intact.
+
 ## [0.8.0-alpha.1]
 
 ### Added

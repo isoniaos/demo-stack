@@ -24,31 +24,22 @@ annotation unless an onchain model explicitly makes them authoritative.
 
 ## Target Versions
 
-The Dockerfiles clone public repositories at pinned Git tags derived from `.env`
-version variables:
+The Dockerfiles clone public runtime repositories at pinned Git tags derived
+from `.env` version variables:
 
-| Package | Tag |
+| Runtime repo/package | Tag |
 | --- | --- |
-| `@isonia/types` | `v0.8.0-alpha.1` |
-| `@isonia/sdk` | `v0.7.0-alpha.2` |
-| `@isonia/theme-default` | `v0.6.0-alpha.3` |
-| `@isonia/control-plane` | `v0.7.0-alpha.2` |
-| `@isonia/evm-contracts` | `v0.8.0-alpha.1` |
-| `@isonia/app-core` | `v0.7.0-alpha.5` |
-| `isoniaos/docs` | `v0.8.0-alpha.2` |
+| `@isonia/app-core` | `v${APP_CORE_VERSION}` |
+| `@isonia/control-plane` | `v${CONTROL_PLANE_VERSION}` |
+| `@isonia/evm-contracts` | `v${EVM_CONTRACTS_VERSION}` |
 
-The docs tag is listed for alignment. This stack does not clone the docs repo at
-runtime.
+This stack directly tracks only App Core, Control Plane, and EVM Contracts.
+Dependencies inside those repositories are owned by the cloned repository tags
+and lockfiles, not by top-level demo-stack version variables. This bridge lets
+the local stack deploy and seed the v0.8 contracts while later repositories add
+the v0.8 API and UI surfaces.
 
-`@isonia/types` is pinned to `v0.8.0-alpha.1` as demo metadata alignment for the
-new accountability/public-archive DTO surface. The current
-`@isonia/control-plane v0.7.0-alpha.2`, `@isonia/app-core v0.7.0-alpha.5`, and
-`@isonia/sdk v0.7.0-alpha.2` images are still pinned to their latest working
-tags and may not bundle or expose those v0.8 types yet. This bridge lets the
-local stack deploy and seed the v0.8 contracts while later repositories add the
-v0.8 API and UI surfaces.
-
-The demo stack uses `.env` as the single source of truth for these repository
+The demo stack uses `.env` as the single source of truth for these runtime
 versions. Keep the values without the leading `v`.
 
 Copy `.env.demo.example` to `.env` before running Compose so these required
@@ -200,10 +191,6 @@ Edit `.env` for local ports and feature gates:
 APP_CORE_VERSION=0.7.0-alpha.5
 EVM_CONTRACTS_VERSION=0.8.0-alpha.1
 CONTROL_PLANE_VERSION=0.7.0-alpha.2
-TYPES_VERSION=0.8.0-alpha.1
-SDK_VERSION=0.7.0-alpha.2
-DOCS_VERSION=0.8.0-alpha.2
-THEME_DEFAULT_VERSION=0.6.0-alpha.3
 VALIDATE_V08_SEED=true
 API_PORT=3000
 APP_PORT=5173
@@ -217,9 +204,9 @@ writeActions=true
 manageOrg=true
 ```
 
-The version variables are the single sources for the corresponding demo image
-tags, Git tags, generated runtime metadata, and package version checks. Keep
-them without the leading `v`.
+The runtime version variables are the single sources for the corresponding demo
+image tags, Git tags, generated runtime metadata, and package version checks.
+Keep them without the leading `v`.
 
 `EVM_CONTRACTS_VERSION` is also written to `runtime/control-plane.env` so
 Control Plane can report whether known contract capabilities are supported. This
