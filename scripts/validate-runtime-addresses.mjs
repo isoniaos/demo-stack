@@ -31,12 +31,7 @@ compareAddress(
   deployedContracts.govProposalsAddress,
   failures,
 );
-compareAddress(
-  "control-plane.env DEMO_TARGET_ADDRESS",
-  controlPlaneEnv.DEMO_TARGET_ADDRESS,
-  deployedContracts.demoTargetAddress,
-  failures,
-);
+rejectDeprecatedControlPlaneConfig(controlPlaneEnv, failures);
 
 const appConfig = readJson(appConfigPath);
 const appContracts = readRuntimeContracts(appConfig.contracts, appConfigPath);
@@ -185,6 +180,39 @@ function compareSeedContracts(seedContracts, expected, failures) {
     expected.demoVotesTokenAddress,
     failures,
   );
+}
+
+function rejectDeprecatedControlPlaneConfig(controlPlaneEnv, failures) {
+  for (const name of ["EVM_CONTRACTS_VERSION", "DEMO_TARGET_ADDRESS"]) {
+    if (controlPlaneEnv[name] !== undefined) {
+      failures.push(`control-plane.env must not include deprecated ${name}`);
+    }
+  }
+
+  if (
+    typeof controlPlaneEnv.ISONIA_PROTOCOL_PROFILE !== "string" ||
+    controlPlaneEnv.ISONIA_PROTOCOL_PROFILE === ""
+  ) {
+    failures.push(
+      `control-plane.env ISONIA_PROTOCOL_PROFILE is missing or empty: ${String(
+        controlPlaneEnv.ISONIA_PROTOCOL_PROFILE,
+      )}`,
+    );
+  }
+
+  const rawCapabilities = controlPlaneEnv.ISONIA_DEPLOYMENT_CAPABILITIES_JSON;
+  try {
+    const capabilities = JSON.parse(rawCapabilities);
+    if (!capabilities || typeof capabilities !== "object" || Array.isArray(capabilities)) {
+      failures.push(
+        "control-plane.env ISONIA_DEPLOYMENT_CAPABILITIES_JSON must be a JSON object",
+      );
+    }
+  } catch (error) {
+    failures.push(
+      `control-plane.env ISONIA_DEPLOYMENT_CAPABILITIES_JSON is invalid JSON: ${error.message}`,
+    );
+  }
 }
 
 function compareAddress(label, actual, expected, failures) {

@@ -25,9 +25,15 @@ const evmContractsVersion = readPackageVersion(
   "EVM_CONTRACTS_VERSION",
   "0.8.0-alpha.1",
 );
+const protocolProfile = readString("ISONIA_PROTOCOL_PROFILE", "current");
+const deploymentCapabilities = readJsonString(
+  "ISONIA_DEPLOYMENT_CAPABILITIES_JSON",
+  '{"activation":{"contractBatch":true},"finalization":{"organization":true}}',
+);
+const deploymentCapabilitiesJson = JSON.stringify(deploymentCapabilities);
 const runtimeVersions = {
   appCore: readPackageVersion("APP_CORE_VERSION", "0.7.0-alpha.5"),
-  controlPlane: readPackageVersion("CONTROL_PLANE_VERSION", "0.7.0-alpha.2"),
+  controlPlane: readPackageVersion("CONTROL_PLANE_VERSION", "0.8.0-alpha.1"),
   evmContracts: evmContractsVersion,
 };
 
@@ -42,6 +48,10 @@ const normalized = {
   generatedAt,
   source: sourcePath,
   runtimeVersions,
+  controlPlane: {
+    protocolProfile,
+    deploymentCapabilities,
+  },
   contracts,
   raw,
 };
@@ -61,7 +71,8 @@ writeText(
     envLine("CONFIRMATIONS", "0"),
     envLine("BLOCK_RANGE_SIZE", "1000"),
     envLine("POLL_INTERVAL_MS", "2000"),
-    envLine("EVM_CONTRACTS_VERSION", evmContractsVersion),
+    envLine("ISONIA_PROTOCOL_PROFILE", protocolProfile),
+    envLine("ISONIA_DEPLOYMENT_CAPABILITIES_JSON", deploymentCapabilitiesJson),
     envLine("PG_HOST", "postgres"),
     envLine("PG_PORT", "5432"),
     envLine("PG_DATABASE", readString("POSTGRES_DB", "isonia_demo")),
@@ -74,7 +85,6 @@ writeText(
     envLine("CORS_CREDENTIALS", "false"),
     envLine("GOV_CORE_ADDRESS", contracts.govCoreAddress),
     envLine("GOV_PROPOSALS_ADDRESS", contracts.govProposalsAddress),
-    envLine("DEMO_TARGET_ADDRESS", contracts.demoTargetAddress),
     "",
   ].join("\n"),
 );
@@ -130,6 +140,19 @@ function readJson(filePath) {
     return JSON.parse(fs.readFileSync(filePath, "utf8"));
   } catch (error) {
     throw new Error(`Unable to read deployed addresses JSON at ${filePath}: ${error.message}`);
+  }
+}
+
+function readJsonString(name, fallback) {
+  const raw = readString(name, fallback);
+  try {
+    const value = JSON.parse(raw);
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      throw new Error("expected a JSON object");
+    }
+    return value;
+  } catch (error) {
+    throw new Error(`Invalid JSON object environment variable ${name}: ${error.message}`);
   }
 }
 

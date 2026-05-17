@@ -6,6 +6,8 @@ Git tags use a leading `v`, for example `v0.7.0-alpha.4`.
 
 ## [Unreleased]
 
+## [0.8.0-alpha.2]
+
 ### Changed
 
 - Narrowed first-class demo-stack runtime version scope to App Core, Control
@@ -13,6 +15,14 @@ Git tags use a leading `v`, for example `v0.7.0-alpha.4`.
 - Removed redundant docs/types/sdk/theme version pins from demo-stack config,
   docs, and runtime metadata while keeping the v0.8 accountability seed bridge
   intact.
+- Updated the default Control Plane pin to `0.8.0-alpha.1`.
+- Replaced version-driven Control Plane capability input with
+  `ISONIA_PROTOCOL_PROFILE` and `ISONIA_DEPLOYMENT_CAPABILITIES_JSON` in the
+  generated runtime environment.
+- Stopped forwarding `EVM_CONTRACTS_VERSION` and `DEMO_TARGET_ADDRESS` to
+  Control Plane while preserving local App Core contract address config.
+- Recorded Control Plane profile and deployment capabilities in the v0.8
+  accountability manifest as demo-stack metadata only.
 
 ## [0.8.0-alpha.1]
 
@@ -56,7 +66,8 @@ Git tags use a leading `v`, for example `v0.7.0-alpha.4`.
   request logs.
 - Prepared the stack for `@isonia/evm-contracts` `v0.7.0-alpha.6`.
 
-[Unreleased]: https://github.com/isoniaos/demo-stack/compare/v0.8.0-alpha.1...HEAD
+[Unreleased]: https://github.com/isoniaos/demo-stack/compare/v0.8.0-alpha.2...HEAD
+[0.8.0-alpha.2]: https://github.com/isoniaos/demo-stack/compare/v0.8.0-alpha.1...v0.8.0-alpha.2
 [0.8.0-alpha.1]: https://github.com/isoniaos/demo-stack/compare/v0.7.0-alpha.5...v0.8.0-alpha.1
 [0.7.0-alpha.5]: https://github.com/isoniaos/demo-stack/compare/v0.7.0-alpha.4...v0.7.0-alpha.5
 [0.7.0-alpha.4]: https://github.com/isoniaos/demo-stack/compare/v0.7.0-alpha.3...v0.7.0-alpha.4

@@ -39,6 +39,7 @@ const manifest = {
   generatedAt: deployed.generatedAt ?? "unknown",
   chainId: deployed.chainId ?? seedOutput.chainId ?? 31337,
   runtimeVersions: readRuntimeVersions(deployed),
+  controlPlane: readControlPlaneMetadata(deployed),
   contracts,
   sourceSeedOutput: relativeRuntimePath(seedOutputPath),
   organizations: [
@@ -220,6 +221,43 @@ function readRuntimeVersions(deployed) {
         legacyVersions.evmContracts,
     ),
   };
+}
+
+function readControlPlaneMetadata(deployed) {
+  const controlPlane = asRecord(deployed.controlPlane);
+  const profile =
+    process.env.ISONIA_PROTOCOL_PROFILE ??
+    controlPlane.protocolProfile ??
+    "current";
+  const deploymentCapabilities =
+    readDeploymentCapabilitiesFromEnv() ??
+    asRecord(controlPlane.deploymentCapabilities);
+
+  return {
+    protocolProfile: profile,
+    deploymentCapabilities,
+    authorityClaim: "demo_stack_metadata_only",
+    note:
+      "This manifest records local demo-stack runtime metadata and is not governance authority.",
+  };
+}
+
+function readDeploymentCapabilitiesFromEnv() {
+  const raw = process.env.ISONIA_DEPLOYMENT_CAPABILITIES_JSON;
+  if (raw === undefined || raw === "") {
+    return undefined;
+  }
+  try {
+    const value = JSON.parse(raw);
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      throw new Error("expected a JSON object");
+    }
+    return value;
+  } catch (error) {
+    throw new Error(
+      `Invalid JSON object environment variable ISONIA_DEPLOYMENT_CAPABILITIES_JSON: ${error.message}`,
+    );
+  }
 }
 
 function stripTag(version) {

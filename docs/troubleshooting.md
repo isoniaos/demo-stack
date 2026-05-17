@@ -76,25 +76,24 @@ docker compose -f docker-compose.demo.yml logs control-plane
 
 ## Capabilities endpoint missing, contract batch unsupported, or finalization unsupported
 
-Control Plane v0.7 exposes:
+Control Plane exposes:
 
 ```sh
 curl http://localhost:3000/v1/capabilities
 ```
 
 Serial activation should be reported as available. Contract batch activation and
-bootstrap finalization are reported as supported only when the generated Control
-Plane environment includes a finalization-capable contracts version. The v0.8
-contract baseline keeps those v0.7 capabilities and adds local accountability
-target actions:
+bootstrap finalization are reported from deployment/profile capability evidence
+in the generated Control Plane environment. The default v0.8 local baseline uses:
 
 ```txt
-EVM_CONTRACTS_VERSION=0.8.0-alpha.1
+ISONIA_PROTOCOL_PROFILE=current
+ISONIA_DEPLOYMENT_CAPABILITIES_JSON={"activation":{"contractBatch":true},"finalization":{"organization":true}}
 ```
 
-`0.7.0-alpha.1` supports activation batch but not finalization. `0.7.0-alpha.2`
-and later v0.7 alpha contract tags support activation batch and bootstrap
-finalization.
+`EVM_CONTRACTS_VERSION` is only the local `evm-contracts` clone/build tag for
+demo-stack orchestration. It is not forwarded to Control Plane as runtime
+capability authority.
 
 Check the generated file:
 
@@ -103,9 +102,9 @@ runtime/control-plane.env
 ```
 
 If the endpoint is missing, confirm the stack is using
-`CONTROL_PLANE_VERSION=0.7.0-alpha.2`. If finalization is unsupported, confirm
-the stack is using `EVM_CONTRACTS_VERSION=0.8.0-alpha.1`, then reset and
-redeploy the local demo state.
+`CONTROL_PLANE_VERSION=0.8.0-alpha.1`. If finalization is unsupported, confirm
+the generated Control Plane env includes the expected protocol profile and
+deployment capabilities, then reset and redeploy the local demo state.
 
 App Core reads capabilities from the configured `apiBaseUrl` in:
 
@@ -118,7 +117,7 @@ the local App Core host. EIP-5792 wallet batching is not the default path.
 
 ## Finalization endpoint unavailable
 
-Control Plane v0.7.0-alpha.2 exposes:
+Control Plane v0.8.0-alpha.1 exposes:
 
 ```sh
 curl http://localhost:3000/v1/orgs/<orgId>/finalization
@@ -126,7 +125,7 @@ curl http://localhost:3000/v1/orgs/<orgId>/finalization
 
 Use an organization ID from App Core or `runtime/seed-output.json`. If the
 endpoint returns 404 for the route itself, rebuild with
-`CONTROL_PLANE_VERSION=0.7.0-alpha.2`. If it returns an organization-specific
+`CONTROL_PLANE_VERSION=0.8.0-alpha.1`. If it returns an organization-specific
 not found response, wait for indexing or confirm the org ID exists in the local
 seed output.
 
@@ -261,12 +260,12 @@ The manifest is a local fixture/bridge artifact for future archive and
 accountability API/UI work. It does not create protocol authority, and it does
 not invent transaction hashes when the seed output does not include them.
 
-## v0.8 contracts with v0.7 Control Plane or App Core
+## v0.8 contracts with App Core compatibility baseline
 
-This bridge intentionally runs `@isonia/evm-contracts v0.8.0-alpha.1` with the
-latest working v0.7 Control Plane/App Core tags. The contracts can emit v0.8
-demo target events before current Control Plane projections or App Core screens
-expose public archive/accountability surfaces.
+This bridge runs `@isonia/evm-contracts v0.8.0-alpha.1` and
+`@isonia/control-plane v0.8.0-alpha.1` with the latest compatible App Core tag.
+The contracts can emit v0.8 demo target events before App Core screens expose
+public archive/accountability surfaces.
 
 Use contract state, seed output, and `runtime/v0.8-accountability-demo.json` as
 the local development bridge. Do not treat missing v0.8 UI or REST archive
@@ -307,7 +306,8 @@ Treat these lines as simulation noise when all of these are true:
 - Control Plane diagnostics show no indexing or projection backlog that fails to
   drain.
 - `runtime/deployed-addresses.json`, `runtime/control-plane.env`, and
-  `runtime/isonia.config.json` use the same contract addresses.
+  `runtime/isonia.config.json` use consistent protocol contract addresses, and
+  App Core has the expected local demo target address.
 
 If App Core shows a failed transaction, or no transaction hash is produced,
 debug it as an actual transaction failure instead of suppressing logs. Actual
