@@ -6,6 +6,12 @@ Git tags use a leading `v`, for example `v0.7.0-alpha.4`.
 
 ## [Unreleased]
 
+### Changed
+
+- Updated the default App Core runtime pin to `0.8.0-alpha.1`, aligning
+  demo-stack with the Control Plane v0.8 archive/accountability read-only UI
+  runtime baseline.
+
 ## [0.8.0-alpha.2]
 
 ### Changed

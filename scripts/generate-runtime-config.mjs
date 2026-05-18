@@ -32,7 +32,7 @@ const deploymentCapabilities = readJsonString(
 );
 const deploymentCapabilitiesJson = JSON.stringify(deploymentCapabilities);
 const runtimeVersions = {
-  appCore: readPackageVersion("APP_CORE_VERSION", "0.7.0-alpha.5"),
+  appCore: readPackageVersion("APP_CORE_VERSION", "0.8.0-alpha.1"),
   controlPlane: readPackageVersion("CONTROL_PLANE_VERSION", "0.8.0-alpha.1"),
   evmContracts: evmContractsVersion,
 };

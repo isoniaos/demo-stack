@@ -45,6 +45,14 @@ versions. Keep the values without the leading `v`.
 Copy `.env.demo.example` to `.env` before running Compose so these required
 version variables are present.
 
+Default runtime versions:
+
+```txt
+APP_CORE_VERSION=0.8.0-alpha.1
+CONTROL_PLANE_VERSION=0.8.0-alpha.1
+EVM_CONTRACTS_VERSION=0.8.0-alpha.1
+```
+
 These version variables select local clone/build tags and generated demo-stack
 metadata. They are not Control Plane runtime capability authority.
 `EVM_CONTRACTS_VERSION` specifically selects the local Hardhat contract image
@@ -127,14 +135,20 @@ Open:
    `http://127.0.0.1:8545`.
 6. Browse seeded organizations, governance structure, proposals, routes, and the
    graph view.
-7. For setup testing, activate a draft organization through the setup flow.
-8. After activation, check `GET /v1/orgs/:orgId/finalization` and finalize the
+7. With App Core v0.8, check the read-only archive/accountability surfaces:
+   `/orgs/:orgId/archive`, the proposal detail Decision Record tab, the
+   proposal detail Accountability tab, and the proposal detail Evidence tab.
+   Missing Control Plane read models may show "not available yet" states while
+   the v0.8 baseline fills in. Demo-stack does not call external provider APIs;
+   evidence and context shown in these surfaces are not governance authority.
+8. For setup testing, activate a draft organization through the setup flow.
+9. After activation, check `GET /v1/orgs/:orgId/finalization` and finalize the
    organization from App Core when the connected account has indexed bootstrap
    admin authority.
-9. Confirm the finalized organization remains active and readable. App Core
+10. Confirm the finalized organization remains active and readable. App Core
    should disable or explain bootstrap-admin actions that are no longer allowed
    after finalization.
-10. For write-flow testing, use only local Hardhat accounts or local balances.
+11. For write-flow testing, use only local Hardhat accounts or local balances.
 
 The demo seed creates local preview organizations and proposals by using the
 existing `@isonia/evm-contracts` seed script. In v0.8 it also seeds one
@@ -193,7 +207,7 @@ its address must match everywhere.
 Edit `.env` for local ports and feature gates:
 
 ```txt
-APP_CORE_VERSION=0.7.0-alpha.5
+APP_CORE_VERSION=0.8.0-alpha.1
 EVM_CONTRACTS_VERSION=0.8.0-alpha.1
 CONTROL_PLANE_VERSION=0.8.0-alpha.1
 VALIDATE_V08_SEED=true

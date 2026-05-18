@@ -260,16 +260,31 @@ The manifest is a local fixture/bridge artifact for future archive and
 accountability API/UI work. It does not create protocol authority, and it does
 not invent transaction hashes when the seed output does not include them.
 
-## v0.8 contracts with App Core compatibility baseline
+## v0.8 archive/accountability UI shows unavailable states
 
-This bridge runs `@isonia/evm-contracts v0.8.0-alpha.1` and
-`@isonia/control-plane v0.8.0-alpha.1` with the latest compatible App Core tag.
-The contracts can emit v0.8 demo target events before App Core screens expose
-public archive/accountability surfaces.
+This bridge runs `@isonia/app-core v0.8.0-alpha.1`,
+`@isonia/control-plane v0.8.0-alpha.1`, and
+`@isonia/evm-contracts v0.8.0-alpha.1`. App Core v0.8 includes read-only
+baseline surfaces for:
 
-Use contract state, seed output, and `runtime/v0.8-accountability-demo.json` as
-the local development bridge. Do not treat missing v0.8 UI or REST archive
-fields as a deployment failure in this repository.
+```txt
+/orgs/:orgId/archive
+proposal detail Decision Record tab
+proposal detail Accountability tab
+proposal detail Evidence tab
+```
+
+If one of these surfaces shows a "not available yet" state, check Control Plane
+diagnostics, capabilities, and the indexer/projection backlog before treating it
+as a deployment failure. Some read models may be absent or still catching up in
+the local baseline.
+
+Demo-stack does not call Snapshot, Safe, Tally, Agora, Discourse, GitHub, or
+block explorer APIs. Evidence and external context shown through the local UI
+are not governance authority unless an explicit onchain model or documented
+read-model field gives that data authority. Real-world Sepolia and provider
+workflow validation belongs in `integration-lab`, not in demo-stack runtime
+inputs.
 
 ## External evidence fixtures are not authority
 
