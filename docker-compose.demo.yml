@@ -56,7 +56,7 @@ services:
       EVM_CONTRACTS_VERSION: "${EVM_CONTRACTS_VERSION}"
       EVM_CONTRACTS_TAG: "v${EVM_CONTRACTS_VERSION}"
       ISONIA_PROTOCOL_PROFILE: "${ISONIA_PROTOCOL_PROFILE:-current}"
-      ISONIA_DEPLOYMENT_CAPABILITIES_JSON: '${ISONIA_DEPLOYMENT_CAPABILITIES_JSON:-{"activation":{"contractBatch":true},"finalization":{"organization":true}}}'
+      ISONIA_DEPLOYMENT_CAPABILITIES_JSON: '${ISONIA_DEPLOYMENT_CAPABILITIES_JSON:-{"activation":{"contractBatch":true},"finalization":{"organization":true},"execution":{"permissionRegistry":true}}}'
       HARDHAT_RPC_URL: "http://127.0.0.1:8545"
       WALLET_CONNECTION_MODE: "${WALLET_CONNECTION_MODE:-injected-only}"
       POSTGRES_DB: "${POSTGRES_DB:-isonia_demo}"

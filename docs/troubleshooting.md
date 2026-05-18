@@ -74,7 +74,7 @@ transactions. If the backlog does not drain, inspect:
 docker compose -f docker-compose.demo.yml logs control-plane
 ```
 
-## Capabilities endpoint missing, contract batch unsupported, or finalization unsupported
+## Capabilities endpoint missing or v0.8 capabilities unsupported
 
 Control Plane exposes:
 
@@ -82,13 +82,14 @@ Control Plane exposes:
 curl http://localhost:3000/v1/capabilities
 ```
 
-Serial activation should be reported as available. Contract batch activation and
-bootstrap finalization are reported from deployment/profile capability evidence
-in the generated Control Plane environment. The default v0.8 local baseline uses:
+Serial activation should be reported as available. Contract batch activation,
+bootstrap finalization, and execution permission registry support are reported
+from deployment/profile capability evidence in the generated Control Plane
+environment. The default v0.8 local baseline uses:
 
 ```txt
 ISONIA_PROTOCOL_PROFILE=current
-ISONIA_DEPLOYMENT_CAPABILITIES_JSON={"activation":{"contractBatch":true},"finalization":{"organization":true}}
+ISONIA_DEPLOYMENT_CAPABILITIES_JSON={"activation":{"contractBatch":true},"finalization":{"organization":true},"execution":{"permissionRegistry":true}}
 ```
 
 `EVM_CONTRACTS_VERSION` is only the local `evm-contracts` clone/build tag for
@@ -102,9 +103,10 @@ runtime/control-plane.env
 ```
 
 If the endpoint is missing, confirm the stack is using
-`CONTROL_PLANE_VERSION=0.8.0-alpha.1`. If finalization is unsupported, confirm
-the generated Control Plane env includes the expected protocol profile and
-deployment capabilities, then reset and redeploy the local demo state.
+`CONTROL_PLANE_VERSION=0.8.0-alpha.2`. If finalization or execution permission
+registry support is unsupported, confirm the generated Control Plane env
+includes the expected protocol profile and deployment capabilities, then reset
+and redeploy the local demo state.
 
 App Core reads capabilities from the configured `apiBaseUrl` in:
 
@@ -117,7 +119,7 @@ the local App Core host. EIP-5792 wallet batching is not the default path.
 
 ## Finalization endpoint unavailable
 
-Control Plane v0.8.0-alpha.1 exposes:
+Control Plane v0.8.0-alpha.2 exposes:
 
 ```sh
 curl http://localhost:3000/v1/orgs/<orgId>/finalization
@@ -125,7 +127,7 @@ curl http://localhost:3000/v1/orgs/<orgId>/finalization
 
 Use an organization ID from App Core or `runtime/seed-output.json`. If the
 endpoint returns 404 for the route itself, rebuild with
-`CONTROL_PLANE_VERSION=0.8.0-alpha.1`. If it returns an organization-specific
+`CONTROL_PLANE_VERSION=0.8.0-alpha.2`. If it returns an organization-specific
 not found response, wait for indexing or confirm the org ID exists in the local
 seed output.
 
@@ -233,7 +235,7 @@ Failures usually mean the demo stack is using an older `@isonia/evm-contracts`
 tag, stale runtime files, or a changed seed shape. Confirm:
 
 ```txt
-EVM_CONTRACTS_VERSION=0.8.0-alpha.1
+EVM_CONTRACTS_VERSION=0.8.0-alpha.2
 VALIDATE_V08_SEED=true
 ```
 
@@ -256,15 +258,16 @@ node scripts/validate-v08-seed-output.mjs
 node scripts/generate-v08-accountability-manifest.mjs
 ```
 
-The manifest is a local fixture/bridge artifact for future archive and
-accountability API/UI work. It does not create protocol authority, and it does
-not invent transaction hashes when the seed output does not include them.
+The manifest is a local fixture/bridge artifact for archive, accountability, and
+execution permission registry API/UI work. It does not create protocol
+authority, and it does not invent transaction hashes or target/selector rules
+when the seed output does not include them.
 
 ## v0.8 archive/accountability UI shows unavailable states
 
-This bridge runs `@isonia/app-core v0.8.0-alpha.1`,
-`@isonia/control-plane v0.8.0-alpha.1`, and
-`@isonia/evm-contracts v0.8.0-alpha.1`. App Core v0.8 includes read-only
+This bridge runs `@isonia/app-core v0.8.0-alpha.2`,
+`@isonia/control-plane v0.8.0-alpha.2`, and
+`@isonia/evm-contracts v0.8.0-alpha.2`. App Core v0.8 includes read-only
 baseline surfaces for:
 
 ```txt
@@ -285,6 +288,19 @@ are not governance authority unless an explicit onchain model or documented
 read-model field gives that data authority. Real-world Sepolia and provider
 workflow validation belongs in `integration-lab`, not in demo-stack runtime
 inputs.
+
+## Execution permission registry expectations missing
+
+For the v0.8 execution registry wave, the local seed should expose
+`organizations.*.executionTargets.demoTarget` with the target address, max value,
+and enabled selectors. The demo-stack validator checks that shape when it is
+present and the manifest records it as local/lab metadata.
+
+These entries describe what the seed explicitly enabled through IsoniaOS
+protocol registry calls. They are not provider integration logic, customer ABI
+decoding, or built-in governance authority. Control Plane should learn execution
+permissions from indexed protocol registry events, while external provider
+experiments remain in `integration-lab`.
 
 ## External evidence fixtures are not authority
 

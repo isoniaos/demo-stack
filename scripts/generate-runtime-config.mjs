@@ -23,17 +23,17 @@ const corsOrigins = readString(
 );
 const evmContractsVersion = readPackageVersion(
   "EVM_CONTRACTS_VERSION",
-  "0.8.0-alpha.1",
+  "0.8.0-alpha.2",
 );
 const protocolProfile = readString("ISONIA_PROTOCOL_PROFILE", "current");
 const deploymentCapabilities = readJsonString(
   "ISONIA_DEPLOYMENT_CAPABILITIES_JSON",
-  '{"activation":{"contractBatch":true},"finalization":{"organization":true}}',
+  '{"activation":{"contractBatch":true},"finalization":{"organization":true},"execution":{"permissionRegistry":true}}',
 );
 const deploymentCapabilitiesJson = JSON.stringify(deploymentCapabilities);
 const runtimeVersions = {
-  appCore: readPackageVersion("APP_CORE_VERSION", "0.8.0-alpha.1"),
-  controlPlane: readPackageVersion("CONTROL_PLANE_VERSION", "0.8.0-alpha.1"),
+  appCore: readPackageVersion("APP_CORE_VERSION", "0.8.0-alpha.2"),
+  controlPlane: readPackageVersion("CONTROL_PLANE_VERSION", "0.8.0-alpha.2"),
   evmContracts: evmContractsVersion,
 };
 

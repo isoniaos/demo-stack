@@ -1,9 +1,9 @@
-# IsoniaOS v0.8 Local Accountability Demo Stack
+# IsoniaOS v0.8 Local Execution Registry Demo Stack
 
 This repository provides a local Docker Compose stack for running the IsoniaOS
-v0.8 accountability demo on a developer machine. It exists to make local
-onboarding, deterministic runtime testing, and design-partner walkthroughs
-easier.
+v0.8 execution permission registry and accountability demo on a developer
+machine. It exists to make local onboarding, deterministic runtime testing, and
+design-partner walkthroughs easier.
 
 It is local convenience infrastructure for App Core, Control Plane, and EVM
 Contracts. It is not the integration lab, production or staging infrastructure,
@@ -48,9 +48,9 @@ version variables are present.
 Default runtime versions:
 
 ```txt
-APP_CORE_VERSION=0.8.0-alpha.1
-CONTROL_PLANE_VERSION=0.8.0-alpha.1
-EVM_CONTRACTS_VERSION=0.8.0-alpha.1
+APP_CORE_VERSION=0.8.0-alpha.2
+CONTROL_PLANE_VERSION=0.8.0-alpha.2
+EVM_CONTRACTS_VERSION=0.8.0-alpha.2
 ```
 
 These version variables select local clone/build tags and generated demo-stack
@@ -129,8 +129,9 @@ Open:
    finalization status are visible.
 4. Open Control Plane `/v1/diagnostics` and `/v1/capabilities`. Confirm the API
    is healthy, the indexer is caught up, serial activation is available, and
-   contract batch activation plus bootstrap finalization are reported from the
-   configured deployment/profile capability evidence.
+   contract batch activation, bootstrap finalization, and execution permission
+   registry support are reported from the configured deployment/profile
+   capability evidence.
 5. Connect a browser wallet to chain ID `31337` with RPC URL
    `http://127.0.0.1:8545`.
 6. Browse seeded organizations, governance structure, proposals, routes, and the
@@ -154,7 +155,10 @@ The demo seed creates local preview organizations and proposals by using the
 existing `@isonia/evm-contracts` seed script. In v0.8 it also seeds one
 approved-and-executed accountability action, one approved-but-not-executed
 obligation action, and demo votes token mint/delegation data when
-`IsoDemoVotesToken` is deployed.
+`IsoDemoVotesToken` is deployed. In the execution registry wave, the seed also
+explicitly enables local DemoTarget execution targets and selectors through
+IsoniaOS protocol registry calls. These local/lab targets are not built-in
+governance authority and are not Control Plane configuration shortcuts.
 
 The current setup flow is capability-aware. App Core reads
 `GET /v1/capabilities` from Control Plane and uses typed contract batch
@@ -207,12 +211,12 @@ its address must match everywhere.
 Edit `.env` for local ports and feature gates:
 
 ```txt
-APP_CORE_VERSION=0.8.0-alpha.1
-EVM_CONTRACTS_VERSION=0.8.0-alpha.1
-CONTROL_PLANE_VERSION=0.8.0-alpha.1
+APP_CORE_VERSION=0.8.0-alpha.2
+EVM_CONTRACTS_VERSION=0.8.0-alpha.2
+CONTROL_PLANE_VERSION=0.8.0-alpha.2
 VALIDATE_V08_SEED=true
 ISONIA_PROTOCOL_PROFILE=current
-ISONIA_DEPLOYMENT_CAPABILITIES_JSON={"activation":{"contractBatch":true},"finalization":{"organization":true}}
+ISONIA_DEPLOYMENT_CAPABILITIES_JSON={"activation":{"contractBatch":true},"finalization":{"organization":true},"execution":{"permissionRegistry":true}}
 API_PORT=3000
 APP_PORT=5173
 HARDHAT_RPC_URL=http://127.0.0.1:8545
@@ -239,11 +243,15 @@ defaults target the current local v0.8 IsoniaOS governance deployment:
 
 ```txt
 ISONIA_PROTOCOL_PROFILE=current
-ISONIA_DEPLOYMENT_CAPABILITIES_JSON={"activation":{"contractBatch":true},"finalization":{"organization":true}}
+ISONIA_DEPLOYMENT_CAPABILITIES_JSON={"activation":{"contractBatch":true},"finalization":{"organization":true},"execution":{"permissionRegistry":true}}
 ```
 
 `VALIDATE_V08_SEED=true` enables the local v0.8 seed-output shape validation and
-writes `runtime/v0.8-accountability-demo.json` after seeding.
+writes `runtime/v0.8-accountability-demo.json` after seeding. When the seed
+output exposes execution target registry rules, the manifest records them as
+local/lab metadata so downstream checks can verify what the seed intended. The
+protocol registry events remain the source Control Plane should index for
+execution permission truth.
 
 `REOWN_PROJECT_ID` is empty by default and `WALLET_CONNECTION_MODE` defaults to
 `injected-only`. App Core remains usable through injected wallet fallback even

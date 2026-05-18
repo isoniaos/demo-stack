@@ -41,6 +41,7 @@ const manifest = {
   runtimeVersions: readRuntimeVersions(deployed),
   controlPlane: readControlPlaneMetadata(deployed),
   contracts,
+  ...buildExecutionPermissionRegistry(seedOutput),
   sourceSeedOutput: relativeRuntimePath(seedOutputPath),
   organizations: [
     {
@@ -161,6 +162,61 @@ function normalizeContracts(deployedContracts, seedContracts) {
         }
       : {}),
   };
+}
+
+function buildExecutionPermissionRegistry(seedOutput) {
+  const organizations = asRecord(seedOutput.organizations);
+  const entries = Object.entries(organizations)
+    .map(([organizationKey, organization]) => {
+      const organizationRecord = asRecord(organization);
+      const demoTarget = asRecord(asRecord(organizationRecord.executionTargets).demoTarget);
+      if (Object.keys(demoTarget).length === 0) {
+        return undefined;
+      }
+      return {
+        organizationKey,
+        orgId: stringOrNull(organizationRecord.orgId),
+        targetKey: "demoTarget",
+        targetAddress: stringOrNull(demoTarget.address),
+        maxValue: stringOrNull(demoTarget.maxValue),
+        selectors: normalizeSelectors(demoTarget.selectors),
+        sourceLabel: "seed_output",
+        trustBoundary: "local_lab_metadata",
+        authorityClaim: "contract_event_observation",
+        note:
+          "The local seed explicitly enabled this target and selector set through protocol execution permission registry calls.",
+      };
+    })
+    .filter(Boolean);
+
+  if (entries.length === 0) {
+    return {};
+  }
+
+  return {
+    executionPermissionRegistry: {
+      permissionRegistrySupported: true,
+      entries,
+      sourceLabel: "seed_output",
+      trustBoundary: "local_lab_metadata",
+      authorityClaim: "demo_stack_metadata_only",
+      note:
+        "This records execution permission expectations exposed by the local seed output; Control Plane must derive protocol truth from indexed registry events.",
+    },
+  };
+}
+
+function normalizeSelectors(value) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value.map((selector) => {
+    const record = asRecord(selector);
+    return {
+      signature: stringOrNull(record.signature),
+      selector: stringOrNull(record.selector),
+    };
+  });
 }
 
 function readJson(filePath) {

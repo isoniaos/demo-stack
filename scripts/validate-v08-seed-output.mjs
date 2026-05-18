@@ -17,6 +17,7 @@ optionalAddress(contracts.demoVotesToken, "contracts.demoVotesToken", failures);
 const simple = asRecord(asRecord(seedOutput.organizations).simple);
 const proposals = asRecord(simple.proposals);
 const accountability = asRecord(simple.accountability);
+const simpleExecutionTargets = asRecord(simple.executionTargets);
 const executedFeatureProposal = asRecord(accountability.executedFeatureProposal);
 const pendingObligationProposal = asRecord(
   accountability.pendingObligationProposal,
@@ -60,6 +61,20 @@ requireAccountabilityProposal(
     proposalId: proposals.pendingObligationProposalId,
     requiredBytes32Field: "obligationId",
   },
+  failures,
+);
+validateOptionalDemoTargetExecutionRules(
+  simpleExecutionTargets.demoTarget,
+  contracts.demoTarget,
+  "organizations.simple.executionTargets.demoTarget",
+  failures,
+);
+
+const bicameral = asRecord(asRecord(seedOutput.organizations).bicameral);
+validateOptionalDemoTargetExecutionRules(
+  asRecord(bicameral.executionTargets).demoTarget,
+  contracts.demoTarget,
+  "organizations.bicameral.executionTargets.demoTarget",
   failures,
 );
 
@@ -136,6 +151,32 @@ function requireAccountabilityProposal(record, label, expected, failures) {
     `${label}.${expected.requiredBytes32Field}`,
     failures,
   );
+}
+
+function validateOptionalDemoTargetExecutionRules(value, demoTarget, label, failures) {
+  if (value === undefined || value === null) {
+    return;
+  }
+  const record = asRecord(value);
+  requireAddress(record.address, `${label}.address`, failures);
+  compareAddress(`${label}.address`, record.address, demoTarget, failures);
+  requireNumericString(record.maxValue, `${label}.maxValue`, failures);
+  if (!Array.isArray(record.selectors) || record.selectors.length === 0) {
+    failures.push(`${label}.selectors must be a non-empty array`);
+    return;
+  }
+  for (const [index, selector] of record.selectors.entries()) {
+    const selectorRecord = asRecord(selector);
+    if (typeof selectorRecord.signature !== "string" || selectorRecord.signature === "") {
+      failures.push(`${label}.selectors[${index}].signature must be a non-empty string`);
+    }
+    if (
+      typeof selectorRecord.selector !== "string" ||
+      !/^0x[a-fA-F0-9]{8}$/.test(selectorRecord.selector)
+    ) {
+      failures.push(`${label}.selectors[${index}].selector must be a bytes4 hex string`);
+    }
+  }
 }
 
 function requireNumericString(value, label, failures) {

@@ -207,6 +207,14 @@ function rejectDeprecatedControlPlaneConfig(controlPlaneEnv, failures) {
       failures.push(
         "control-plane.env ISONIA_DEPLOYMENT_CAPABILITIES_JSON must be a JSON object",
       );
+      return;
+    }
+    if (
+      asRecord(asRecord(capabilities).execution).permissionRegistry !== true
+    ) {
+      failures.push(
+        "control-plane.env ISONIA_DEPLOYMENT_CAPABILITIES_JSON.execution.permissionRegistry must be true",
+      );
     }
   } catch (error) {
     failures.push(

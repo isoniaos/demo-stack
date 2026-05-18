@@ -6,11 +6,18 @@ Git tags use a leading `v`, for example `v0.7.0-alpha.4`.
 
 ## [Unreleased]
 
+## [0.8.0-alpha.3]
+
 ### Changed
 
-- Updated the default App Core runtime pin to `0.8.0-alpha.1`, aligning
-  demo-stack with the Control Plane v0.8 archive/accountability read-only UI
-  runtime baseline.
+- Updated default App Core, Control Plane, and EVM Contracts runtime pins to
+  `0.8.0-alpha.2` for the v0.8 execution permission registry wave.
+- Added execution permission registry capability metadata to generated Control
+  Plane runtime config and validation.
+- Added seed-output validation and manifest metadata for local execution target
+  registry expectations when the contracts seed exposes them.
+- Updated docs to keep provider integrations and external evidence experiments
+  in `integration-lab`, not demo-stack runtime orchestration.
 
 ## [0.8.0-alpha.2]
 
@@ -72,7 +79,8 @@ Git tags use a leading `v`, for example `v0.7.0-alpha.4`.
   request logs.
 - Prepared the stack for `@isonia/evm-contracts` `v0.7.0-alpha.6`.
 
-[Unreleased]: https://github.com/isoniaos/demo-stack/compare/v0.8.0-alpha.2...HEAD
+[Unreleased]: https://github.com/isoniaos/demo-stack/compare/v0.8.0-alpha.3...HEAD
+[0.8.0-alpha.3]: https://github.com/isoniaos/demo-stack/compare/v0.8.0-alpha.2...v0.8.0-alpha.3
 [0.8.0-alpha.2]: https://github.com/isoniaos/demo-stack/compare/v0.8.0-alpha.1...v0.8.0-alpha.2
 [0.8.0-alpha.1]: https://github.com/isoniaos/demo-stack/compare/v0.7.0-alpha.5...v0.8.0-alpha.1
 [0.7.0-alpha.5]: https://github.com/isoniaos/demo-stack/compare/v0.7.0-alpha.4...v0.7.0-alpha.5

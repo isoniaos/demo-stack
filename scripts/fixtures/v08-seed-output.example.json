@@ -44,6 +44,38 @@
           "obligationId": "0x51f74d2e82f5f9dd4e1e0f48ad0b37b7a14ffef6a3a9c6079f7c9c95c33d1009",
           "status": "approved_not_executed"
         }
+      },
+      "executionTargets": {
+        "demoTarget": {
+          "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+          "maxValue": "1000000000000000000",
+          "selectors": [
+            {
+              "signature": "setNumber(uint64,uint256)",
+              "selector": "0x5bcecd74"
+            },
+            {
+              "signature": "setFeatureEnabled(uint64,bytes32,bool)",
+              "selector": "0x2a5de8a1"
+            },
+            {
+              "signature": "setUintParam(uint64,bytes32,uint256)",
+              "selector": "0x28d57e96"
+            },
+            {
+              "signature": "releaseNativePayment(uint64,bytes32,address)",
+              "selector": "0x2072a5d2"
+            },
+            {
+              "signature": "markObligationAccepted(uint64,bytes32)",
+              "selector": "0x280475d0"
+            },
+            {
+              "signature": "markObligationCancelled(uint64,bytes32,string)",
+              "selector": "0xa30fab19"
+            }
+          ]
+        }
       }
     },
     "bicameral": {
@@ -56,6 +88,38 @@
       "proposals": {
         "treasuryProposalId": "5",
         "upgradeProposalId": "6"
+      },
+      "executionTargets": {
+        "demoTarget": {
+          "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+          "maxValue": "1000000000000000000",
+          "selectors": [
+            {
+              "signature": "setNumber(uint64,uint256)",
+              "selector": "0x5bcecd74"
+            },
+            {
+              "signature": "setFeatureEnabled(uint64,bytes32,bool)",
+              "selector": "0x2a5de8a1"
+            },
+            {
+              "signature": "setUintParam(uint64,bytes32,uint256)",
+              "selector": "0x28d57e96"
+            },
+            {
+              "signature": "releaseNativePayment(uint64,bytes32,address)",
+              "selector": "0x2072a5d2"
+            },
+            {
+              "signature": "markObligationAccepted(uint64,bytes32)",
+              "selector": "0x280475d0"
+            },
+            {
+              "signature": "markObligationCancelled(uint64,bytes32,string)",
+              "selector": "0xa30fab19"
+            }
+          ]
+        }
       }
     }
   },
