@@ -3,7 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 REPO_URL="${EVM_CONTRACTS_REPO_URL:-https://github.com/isoniaos/evm-contracts.git}"
-TAG="${EVM_CONTRACTS_TAG:-v0.8.0-alpha.2}"
+TAG="${EVM_CONTRACTS_TAG:-v0.8.0-alpha.3}"
 EVM_CONTRACTS_VERSION="${EVM_CONTRACTS_VERSION:-${TAG#v}}"
 export EVM_CONTRACTS_VERSION
 WORK_DIR="${DEMO_WORK_DIR:-/work}"

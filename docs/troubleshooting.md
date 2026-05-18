@@ -103,7 +103,7 @@ runtime/control-plane.env
 ```
 
 If the endpoint is missing, confirm the stack is using
-`CONTROL_PLANE_VERSION=0.8.0-alpha.2`. If finalization or execution permission
+`CONTROL_PLANE_VERSION=0.8.0-alpha.3`. If finalization or execution permission
 registry support is unsupported, confirm the generated Control Plane env
 includes the expected protocol profile and deployment capabilities, then reset
 and redeploy the local demo state.
@@ -119,7 +119,7 @@ the local App Core host. EIP-5792 wallet batching is not the default path.
 
 ## Finalization endpoint unavailable
 
-Control Plane v0.8.0-alpha.2 exposes:
+Control Plane v0.8.0-alpha.3 exposes:
 
 ```sh
 curl http://localhost:3000/v1/orgs/<orgId>/finalization
@@ -127,7 +127,7 @@ curl http://localhost:3000/v1/orgs/<orgId>/finalization
 
 Use an organization ID from App Core or `runtime/seed-output.json`. If the
 endpoint returns 404 for the route itself, rebuild with
-`CONTROL_PLANE_VERSION=0.8.0-alpha.2`. If it returns an organization-specific
+`CONTROL_PLANE_VERSION=0.8.0-alpha.3`. If it returns an organization-specific
 not found response, wait for indexing or confirm the org ID exists in the local
 seed output.
 
@@ -235,7 +235,7 @@ Failures usually mean the demo stack is using an older `@isonia/evm-contracts`
 tag, stale runtime files, or a changed seed shape. Confirm:
 
 ```txt
-EVM_CONTRACTS_VERSION=0.8.0-alpha.2
+EVM_CONTRACTS_VERSION=0.8.0-alpha.3
 VALIDATE_V08_SEED=true
 ```
 
@@ -260,14 +260,29 @@ node scripts/generate-v08-accountability-manifest.mjs
 
 The manifest is a local fixture/bridge artifact for archive, accountability, and
 execution permission registry API/UI work. It does not create protocol
-authority, and it does not invent transaction hashes or target/selector rules
-when the seed output does not include them.
+authority, and it does not invent transaction hashes, target rules, or
+proposal-level `actionSelector` values when the seed output does not include
+them.
+
+## Selector-aware proposal identity missing
+
+The v0.8 selector-aware proposal wave may expose `actionSelector` on seeded
+proposal/action records. The selector is the protocol-declared bytes4 action
+identity for the proposal action. It is not customer ABI decoding, and
+demo-stack does not infer method names from calldata.
+
+If `runtime/seed-output.json` contains `actionSelector`, the demo-stack
+validator checks that it is a bytes4 hex string and matches the known local
+seeded accountability action. The generated v0.8 accountability manifest
+preserves it on proposal/action records. If the actual seed output does not
+expose selector data yet, validation remains conservative and the manifest omits
+that field instead of inventing it.
 
 ## v0.8 archive/accountability UI shows unavailable states
 
-This bridge runs `@isonia/app-core v0.8.0-alpha.2`,
-`@isonia/control-plane v0.8.0-alpha.2`, and
-`@isonia/evm-contracts v0.8.0-alpha.2`. App Core v0.8 includes read-only
+This bridge runs `@isonia/app-core v0.8.0-alpha.3`,
+`@isonia/control-plane v0.8.0-alpha.3`, and
+`@isonia/evm-contracts v0.8.0-alpha.3`. App Core v0.8 includes read-only
 baseline surfaces for:
 
 ```txt

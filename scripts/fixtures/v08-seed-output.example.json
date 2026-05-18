@@ -34,6 +34,7 @@
         "executedFeatureProposal": {
           "proposalId": "3",
           "action": "setFeatureEnabled",
+          "actionSelector": "0x2a5de8a1",
           "feature": "0x9e11f1a68d60a5e4a7a2b6d3c5b8919e19bd8f7feaf642d90aa988dc2e6af820",
           "enabled": true,
           "status": "executed"
@@ -41,6 +42,7 @@
         "pendingObligationProposal": {
           "proposalId": "4",
           "action": "markObligationAccepted",
+          "actionSelector": "0x280475d0",
           "obligationId": "0x51f74d2e82f5f9dd4e1e0f48ad0b37b7a14ffef6a3a9c6079f7c9c95c33d1009",
           "status": "approved_not_executed"
         }

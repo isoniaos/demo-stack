@@ -40,6 +40,7 @@ requireAccountabilityProposal(
   "organizations.simple.accountability.executedFeatureProposal",
   {
     action: "setFeatureEnabled",
+    actionSelector: "0x2a5de8a1",
     status: "executed",
     proposalId: proposals.executedFeatureProposalId,
     requiredBytes32Field: "feature",
@@ -57,6 +58,7 @@ requireAccountabilityProposal(
   "organizations.simple.accountability.pendingObligationProposal",
   {
     action: "markObligationAccepted",
+    actionSelector: "0x280475d0",
     status: "approved_not_executed",
     proposalId: proposals.pendingObligationProposalId,
     requiredBytes32Field: "obligationId",
@@ -143,6 +145,17 @@ function requireAccountabilityProposal(record, label, expected, failures) {
   if (record.action !== expected.action) {
     failures.push(`${label}.action must be ${expected.action}`);
   }
+  if (record.actionSelector !== undefined) {
+    requireBytes4(record.actionSelector, `${label}.actionSelector`, failures);
+    if (
+      typeof record.actionSelector === "string" &&
+      record.actionSelector.toLowerCase() !== expected.actionSelector
+    ) {
+      failures.push(
+        `${label}.actionSelector ${record.actionSelector} does not match ${expected.actionSelector}`,
+      );
+    }
+  }
   if (record.status !== expected.status) {
     failures.push(`${label}.status must be ${expected.status}`);
   }
@@ -188,6 +201,12 @@ function requireNumericString(value, label, failures) {
 function requireBytes32(value, label, failures) {
   if (typeof value !== "string" || !/^0x[a-fA-F0-9]{64}$/.test(value)) {
     failures.push(`${label} must be a bytes32 hex string`);
+  }
+}
+
+function requireBytes4(value, label, failures) {
+  if (typeof value !== "string" || !/^0x[a-fA-F0-9]{8}$/.test(value)) {
+    failures.push(`${label} must be a bytes4 hex string`);
   }
 }
 

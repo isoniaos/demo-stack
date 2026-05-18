@@ -6,12 +6,22 @@ Git tags use a leading `v`, for example `v0.7.0-alpha.4`.
 
 ## [Unreleased]
 
+## [0.8.0-alpha.4]
+
+### Changed
+
+- Updated default App Core, Control Plane, and EVM Contracts runtime pins to
+  `0.8.0-alpha.4` for the v0.8 selector-aware proposal action identity wave.
+- Preserved protocol-declared proposal `actionSelector` values in v0.8 seed
+  validation and accountability manifest generation when the seed output
+  exposes them.
+
 ## [0.8.0-alpha.3]
 
 ### Changed
 
 - Updated default App Core, Control Plane, and EVM Contracts runtime pins to
-  `0.8.0-alpha.2` for the v0.8 execution permission registry wave.
+  `0.8.0-alpha.3` for the v0.8 selector-aware proposal action identity wave.
 - Added execution permission registry capability metadata to generated Control
   Plane runtime config and validation.
 - Added seed-output validation and manifest metadata for local execution target
@@ -79,7 +89,8 @@ Git tags use a leading `v`, for example `v0.7.0-alpha.4`.
   request logs.
 - Prepared the stack for `@isonia/evm-contracts` `v0.7.0-alpha.6`.
 
-[Unreleased]: https://github.com/isoniaos/demo-stack/compare/v0.8.0-alpha.3...HEAD
+[Unreleased]: https://github.com/isoniaos/demo-stack/compare/v0.8.0-alpha.4...HEAD
+[0.8.0-alpha.4]: https://github.com/isoniaos/demo-stack/compare/v0.8.0-alpha.3...v0.8.0-alpha.4
 [0.8.0-alpha.3]: https://github.com/isoniaos/demo-stack/compare/v0.8.0-alpha.2...v0.8.0-alpha.3
 [0.8.0-alpha.2]: https://github.com/isoniaos/demo-stack/compare/v0.8.0-alpha.1...v0.8.0-alpha.2
 [0.8.0-alpha.1]: https://github.com/isoniaos/demo-stack/compare/v0.7.0-alpha.5...v0.8.0-alpha.1

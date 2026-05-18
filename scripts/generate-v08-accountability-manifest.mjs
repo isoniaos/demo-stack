@@ -71,6 +71,7 @@ function buildExecutedFeatureScenario(record) {
     kind: "onchain_executed_demo_action",
     proposalId: stringOrNull(record.proposalId),
     action: stringOrNull(record.action),
+    ...optionalStringField("actionSelector", record.actionSelector),
     status: stringOrNull(record.status),
     accountabilityExecutionStatus: "completed",
     feature: stringOrNull(record.feature),
@@ -92,6 +93,7 @@ function buildPendingObligationScenario(record) {
     kind: "approved_not_executed_demo_action",
     proposalId: stringOrNull(record.proposalId),
     action: stringOrNull(record.action),
+    ...optionalStringField("actionSelector", record.actionSelector),
     status: stringOrNull(record.status),
     accountabilityExecutionStatus: "not_started",
     obligationId: stringOrNull(record.obligationId),
@@ -132,6 +134,7 @@ function buildManualAnnotationScenario(record) {
     title: "Manual overdue annotation fixture",
     kind: "manual_accountability_annotation_fixture",
     proposalId: stringOrNull(record.proposalId),
+    ...optionalStringField("actionSelector", record.actionSelector),
     obligationId: stringOrNull(record.obligationId),
     accountabilityExecutionStatus: "blocked",
     sourceLabel: "manual_evidence",
@@ -250,6 +253,10 @@ function asRecord(value) {
 
 function stringOrNull(value) {
   return typeof value === "string" ? value : null;
+}
+
+function optionalStringField(name, value) {
+  return typeof value === "string" ? { [name]: value } : {};
 }
 
 function relativeRuntimePath(filePath) {
