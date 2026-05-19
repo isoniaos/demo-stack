@@ -1,9 +1,10 @@
-# IsoniaOS v0.8 Selector-Aware Proposal Demo Stack
+# IsoniaOS v0.8 Managed Execution Receipt Demo Stack
 
 This repository provides a local Docker Compose stack for running the IsoniaOS
-v0.8 selector-aware proposal identity, execution permission registry, and
-accountability demo on a developer machine. It exists to make local onboarding,
-deterministic runtime testing, and design-partner walkthroughs easier.
+v0.8 selector-aware proposal identity, execution permission registry, managed
+execution receipt, and accountability demo on a developer machine. It exists to
+make local onboarding, deterministic runtime testing, and design-partner
+walkthroughs easier.
 
 It is local convenience infrastructure for App Core, Control Plane, and EVM
 Contracts. It is not the integration lab, production or staging infrastructure,
@@ -48,9 +49,9 @@ version variables are present.
 Default runtime versions:
 
 ```txt
-APP_CORE_VERSION=0.8.0-alpha.3
-CONTROL_PLANE_VERSION=0.8.0-alpha.3
-EVM_CONTRACTS_VERSION=0.8.0-alpha.3
+APP_CORE_VERSION=0.8.0-alpha.4
+CONTROL_PLANE_VERSION=0.8.0-alpha.4
+EVM_CONTRACTS_VERSION=0.8.0-alpha.5
 ```
 
 These version variables select local clone/build tags and generated demo-stack
@@ -155,13 +156,21 @@ The demo seed creates local preview organizations and proposals by using the
 existing `@isonia/evm-contracts` seed script. In v0.8 it also seeds one
 approved-and-executed accountability action, one approved-but-not-executed
 obligation action, and demo votes token mint/delegation data when
-`IsoDemoVotesToken` is deployed. In the selector-aware proposal wave, the seed
-may expose `actionSelector` as the protocol-declared bytes4 action identity for
-a proposal action. That selector is not customer ABI decoding and demo-stack
-does not infer method names from calldata. The seed also explicitly enables
-local DemoTarget execution targets and selectors through IsoniaOS protocol
-registry calls. These local/lab targets are not built-in governance authority
-and are not Control Plane configuration shortcuts.
+`IsoDemoVotesToken` is deployed. In the managed execution receipt wave,
+`evm-contracts@v0.8.0-alpha.5` provides canonical `ProposalExecuted` receipts
+for direct and managed execution, `control-plane@v0.8.0-alpha.4` indexes those
+managed execution receipts, and `app-core@v0.8.0-alpha.4` renders the managed
+execution read-only UI. When seed output includes receipt fields, demo-stack
+preserves them in local validation and manifest generation; when it does not,
+demo-stack omits them instead of inventing transaction hashes or receipts.
+
+In the selector-aware proposal wave, the seed may expose `actionSelector` as the
+protocol-declared bytes4 action identity for a proposal action. That selector is
+not customer ABI decoding and demo-stack does not infer method names from
+calldata. The seed also explicitly enables local DemoTarget execution targets
+and selectors through IsoniaOS protocol registry calls. These local/lab targets
+are not built-in governance authority and are not Control Plane configuration
+shortcuts.
 
 The current setup flow is capability-aware. App Core reads
 `GET /v1/capabilities` from Control Plane and uses typed contract batch
@@ -214,9 +223,9 @@ its address must match everywhere.
 Edit `.env` for local ports and feature gates:
 
 ```txt
-APP_CORE_VERSION=0.8.0-alpha.3
-CONTROL_PLANE_VERSION=0.8.0-alpha.3
-EVM_CONTRACTS_VERSION=0.8.0-alpha.3
+APP_CORE_VERSION=0.8.0-alpha.4
+CONTROL_PLANE_VERSION=0.8.0-alpha.4
+EVM_CONTRACTS_VERSION=0.8.0-alpha.5
 VALIDATE_V08_SEED=true
 ISONIA_PROTOCOL_PROFILE=current
 ISONIA_DEPLOYMENT_CAPABILITIES_JSON={"activation":{"contractBatch":true},"finalization":{"organization":true},"execution":{"permissionRegistry":true}}
@@ -258,6 +267,15 @@ demo-stack does not invent it. When the seed output exposes execution target
 registry rules, the manifest records them as local/lab metadata so downstream
 checks can verify what the seed intended. The protocol registry events remain
 the source Control Plane should index for execution permission truth.
+
+When the seed output exposes org executor configuration or proposal execution
+receipts, the validator recognizes direct and managed execution modes, managed
+executor address, final target address, final value, final action selector,
+final data hash, and supplied transaction/block metadata. The manifest preserves
+those fields as seed-provided observation data. Managed execution permissions
+remain final-target based: the proposal target is the final customer/demo
+target, the managed executor is org-scoped execution infrastructure, and
+demo-stack does not add target-contract event authority.
 
 `REOWN_PROJECT_ID` is empty by default and `WALLET_CONNECTION_MODE` defaults to
 `injected-only`. App Core remains usable through injected wallet fallback even

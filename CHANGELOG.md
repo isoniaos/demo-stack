@@ -6,6 +6,18 @@ Git tags use a leading `v`, for example `v0.7.0-alpha.4`.
 
 ## [Unreleased]
 
+## [0.8.0-alpha.5]
+
+### Changed
+
+- Updated default runtime pins to `@isonia/app-core 0.8.0-alpha.4`,
+  `@isonia/control-plane 0.8.0-alpha.4`, and
+  `@isonia/evm-contracts 0.8.0-alpha.5` for the managed execution receipt wave.
+- Preserved optional org executor configuration and supplied direct/managed
+  execution receipt metadata in v0.8 seed validation and manifest generation.
+- Documented that demo-stack remains local orchestration only, while live
+  Sepolia/provider validation stays in `integration-lab`.
+
 ## [0.8.0-alpha.4]
 
 ### Changed
@@ -89,7 +101,8 @@ Git tags use a leading `v`, for example `v0.7.0-alpha.4`.
   request logs.
 - Prepared the stack for `@isonia/evm-contracts` `v0.7.0-alpha.6`.
 
-[Unreleased]: https://github.com/isoniaos/demo-stack/compare/v0.8.0-alpha.4...HEAD
+[Unreleased]: https://github.com/isoniaos/demo-stack/compare/v0.8.0-alpha.5...HEAD
+[0.8.0-alpha.5]: https://github.com/isoniaos/demo-stack/compare/v0.8.0-alpha.4...v0.8.0-alpha.5
 [0.8.0-alpha.4]: https://github.com/isoniaos/demo-stack/compare/v0.8.0-alpha.3...v0.8.0-alpha.4
 [0.8.0-alpha.3]: https://github.com/isoniaos/demo-stack/compare/v0.8.0-alpha.2...v0.8.0-alpha.3
 [0.8.0-alpha.2]: https://github.com/isoniaos/demo-stack/compare/v0.8.0-alpha.1...v0.8.0-alpha.2

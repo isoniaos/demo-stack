@@ -18,6 +18,7 @@ const simple = asRecord(asRecord(seedOutput.organizations).simple);
 const proposals = asRecord(simple.proposals);
 const accountability = asRecord(simple.accountability);
 const simpleExecutionTargets = asRecord(simple.executionTargets);
+const simpleExecutorConfiguration = asRecord(simple.executorConfiguration);
 const executedFeatureProposal = asRecord(accountability.executedFeatureProposal);
 const pendingObligationProposal = asRecord(
   accountability.pendingObligationProposal,
@@ -71,12 +72,34 @@ validateOptionalDemoTargetExecutionRules(
   "organizations.simple.executionTargets.demoTarget",
   failures,
 );
+validateOptionalExecutorConfiguration(
+  simpleExecutorConfiguration,
+  "organizations.simple.executorConfiguration",
+  failures,
+);
+validateOptionalExecutionReceipt(
+  executedFeatureProposal.executionReceipt,
+  contracts.demoTarget,
+  "organizations.simple.accountability.executedFeatureProposal.executionReceipt",
+  failures,
+);
+validateOptionalExecutionReceipt(
+  pendingObligationProposal.executionReceipt,
+  contracts.demoTarget,
+  "organizations.simple.accountability.pendingObligationProposal.executionReceipt",
+  failures,
+);
 
 const bicameral = asRecord(asRecord(seedOutput.organizations).bicameral);
 validateOptionalDemoTargetExecutionRules(
   asRecord(bicameral.executionTargets).demoTarget,
   contracts.demoTarget,
   "organizations.bicameral.executionTargets.demoTarget",
+  failures,
+);
+validateOptionalExecutorConfiguration(
+  asRecord(bicameral.executorConfiguration),
+  "organizations.bicameral.executorConfiguration",
   failures,
 );
 
@@ -189,6 +212,72 @@ function validateOptionalDemoTargetExecutionRules(value, demoTarget, label, fail
     ) {
       failures.push(`${label}.selectors[${index}].selector must be a bytes4 hex string`);
     }
+  }
+}
+
+function validateOptionalExecutorConfiguration(value, label, failures) {
+  if (value === undefined || value === null || Object.keys(value).length === 0) {
+    return;
+  }
+  const record = asRecord(value);
+  if (record.executionMode !== undefined) {
+    requireExecutionMode(record.executionMode, `${label}.executionMode`, failures);
+  }
+  if (record.managedExecutorAddress !== undefined) {
+    requireAddress(record.managedExecutorAddress, `${label}.managedExecutorAddress`, failures);
+  }
+  if (record.finalTargetAddress !== undefined) {
+    requireAddress(record.finalTargetAddress, `${label}.finalTargetAddress`, failures);
+  }
+  if (record.permissionsBasis !== undefined && record.permissionsBasis !== "final_target") {
+    failures.push(`${label}.permissionsBasis must be final_target when present`);
+  }
+}
+
+function validateOptionalExecutionReceipt(value, demoTarget, label, failures) {
+  if (value === undefined || value === null) {
+    return;
+  }
+  const record = asRecord(value);
+  requireExecutionMode(record.executionMode, `${label}.executionMode`, failures);
+  if (record.managedExecutorAddress !== undefined) {
+    requireAddress(record.managedExecutorAddress, `${label}.managedExecutorAddress`, failures);
+  }
+  if (record.finalTargetAddress !== undefined) {
+    requireAddress(record.finalTargetAddress, `${label}.finalTargetAddress`, failures);
+    compareAddress(`${label}.finalTargetAddress`, record.finalTargetAddress, demoTarget, failures);
+  }
+  if (record.proposalTargetAddress !== undefined) {
+    requireAddress(record.proposalTargetAddress, `${label}.proposalTargetAddress`, failures);
+    compareAddress(`${label}.proposalTargetAddress`, record.proposalTargetAddress, demoTarget, failures);
+  }
+  if (record.finalValue !== undefined) {
+    requireNumericString(record.finalValue, `${label}.finalValue`, failures);
+  }
+  if (record.finalActionSelector !== undefined) {
+    requireBytes4(record.finalActionSelector, `${label}.finalActionSelector`, failures);
+  }
+  if (record.finalDataHash !== undefined) {
+    requireBytes32(record.finalDataHash, `${label}.finalDataHash`, failures);
+  }
+  validateOptionalTxMetadata(record, label, failures);
+}
+
+function validateOptionalTxMetadata(record, label, failures) {
+  if (record.transactionHash !== undefined) {
+    requireBytes32(record.transactionHash, `${label}.transactionHash`, failures);
+  }
+  if (record.blockHash !== undefined) {
+    requireBytes32(record.blockHash, `${label}.blockHash`, failures);
+  }
+  if (record.blockNumber !== undefined) {
+    requireNumericString(record.blockNumber, `${label}.blockNumber`, failures);
+  }
+}
+
+function requireExecutionMode(value, label, failures) {
+  if (value !== "direct" && value !== "managed") {
+    failures.push(`${label} must be direct or managed`);
   }
 }
 

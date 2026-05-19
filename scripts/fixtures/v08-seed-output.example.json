@@ -30,6 +30,12 @@
         "executedFeatureProposalId": "3",
         "pendingObligationProposalId": "4"
       },
+      "executorConfiguration": {
+        "executionMode": "managed",
+        "managedExecutorAddress": "0x14dC79964da2C08b23698B3D3cc7Ca32193d9955",
+        "finalTargetAddress": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "permissionsBasis": "final_target"
+      },
       "accountability": {
         "executedFeatureProposal": {
           "proposalId": "3",
@@ -37,7 +43,19 @@
           "actionSelector": "0x2a5de8a1",
           "feature": "0x9e11f1a68d60a5e4a7a2b6d3c5b8919e19bd8f7feaf642d90aa988dc2e6af820",
           "enabled": true,
-          "status": "executed"
+          "status": "executed",
+          "executionReceipt": {
+            "executionMode": "managed",
+            "managedExecutorAddress": "0x14dC79964da2C08b23698B3D3cc7Ca32193d9955",
+            "proposalTargetAddress": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+            "finalTargetAddress": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+            "finalValue": "0",
+            "finalActionSelector": "0x2a5de8a1",
+            "finalDataHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "transactionHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "blockNumber": "42",
+            "blockHash": "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+          }
         },
         "pendingObligationProposal": {
           "proposalId": "4",

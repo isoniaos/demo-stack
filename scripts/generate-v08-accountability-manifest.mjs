@@ -41,7 +41,9 @@ const manifest = {
   runtimeVersions: readRuntimeVersions(deployed),
   controlPlane: readControlPlaneMetadata(deployed),
   contracts,
+  ...buildOrgExecutorConfigurations(seedOutput),
   ...buildExecutionPermissionRegistry(seedOutput),
+  ...buildExecutionReceipts(seedOutput),
   sourceSeedOutput: relativeRuntimePath(seedOutputPath),
   organizations: [
     {
@@ -78,6 +80,7 @@ function buildExecutedFeatureScenario(record) {
     enabled: record.enabled === true,
     linkedTransaction: null,
     observedTransactionStatus: "unknown",
+    ...optionalExecutionReceiptField(record.executionReceipt),
     sourceLabel: "contract_state",
     trustBoundary: "onchain_observation",
     authorityClaim: "contract_authoritative",
@@ -99,12 +102,72 @@ function buildPendingObligationScenario(record) {
     obligationId: stringOrNull(record.obligationId),
     linkedTransaction: null,
     observedTransactionStatus: "unknown",
+    ...optionalExecutionReceiptField(record.executionReceipt),
     sourceLabel: "contract_state",
     trustBoundary: "onchain_observation",
     authorityClaim: "contract_authoritative",
     executionProofNote:
       "The local seed approved this proposal but intentionally did not execute the governed target action.",
   };
+}
+
+function buildOrgExecutorConfigurations(seedOutput) {
+  const entries = Object.entries(asRecord(seedOutput.organizations))
+    .map(([organizationKey, organization]) => {
+      const organizationRecord = asRecord(organization);
+      const config = normalizeExecutorConfiguration(
+        organizationRecord.executorConfiguration,
+      );
+      if (config === undefined) {
+        return undefined;
+      }
+      return {
+        organizationKey,
+        orgId: stringOrNull(organizationRecord.orgId),
+        ...config,
+        sourceLabel: "seed_output",
+        trustBoundary: "local_lab_metadata",
+        authorityClaim: "demo_stack_metadata_only",
+        note:
+          "Executor configuration is preserved from seed output for local read-model checks; protocol events remain the authority for modeled execution state.",
+      };
+    })
+    .filter(Boolean);
+
+  return entries.length === 0 ? {} : { orgExecutorConfigurations: entries };
+}
+
+function buildExecutionReceipts(seedOutput) {
+  const entries = [];
+  for (const [organizationKey, organization] of Object.entries(
+    asRecord(seedOutput.organizations),
+  )) {
+    const organizationRecord = asRecord(organization);
+    const accountability = asRecord(organizationRecord.accountability);
+    for (const [recordKey, record] of Object.entries(accountability)) {
+      const proposalRecord = asRecord(record);
+      const receipt = normalizeExecutionReceipt(proposalRecord.executionReceipt);
+      if (receipt === undefined) {
+        continue;
+      }
+      entries.push({
+        organizationKey,
+        orgId: stringOrNull(organizationRecord.orgId),
+        recordKey,
+        proposalId: stringOrNull(proposalRecord.proposalId),
+        action: stringOrNull(proposalRecord.action),
+        ...optionalStringField("actionSelector", proposalRecord.actionSelector),
+        ...receipt,
+        sourceLabel: "seed_output",
+        trustBoundary: "onchain_observation",
+        authorityClaim: "contract_authoritative",
+        note:
+          "Execution receipt data is preserved only when supplied by the seed output. Permissions are final-target based; demo-stack does not decode customer ABIs or index target-contract events.",
+      });
+    }
+  }
+
+  return entries.length === 0 ? {} : { executionReceipts: entries };
 }
 
 function buildExternalContextScenario() {
@@ -207,6 +270,43 @@ function buildExecutionPermissionRegistry(seedOutput) {
         "This records execution permission expectations exposed by the local seed output; Control Plane must derive protocol truth from indexed registry events.",
     },
   };
+}
+
+function normalizeExecutorConfiguration(value) {
+  const record = asRecord(value);
+  if (Object.keys(record).length === 0) {
+    return undefined;
+  }
+  return {
+    executionMode: stringOrNull(record.executionMode),
+    managedExecutorAddress: stringOrNull(record.managedExecutorAddress),
+    finalTargetAddress: stringOrNull(record.finalTargetAddress),
+    permissionsBasis: stringOrNull(record.permissionsBasis),
+  };
+}
+
+function normalizeExecutionReceipt(value) {
+  const record = asRecord(value);
+  if (Object.keys(record).length === 0) {
+    return undefined;
+  }
+  return {
+    executionMode: stringOrNull(record.executionMode),
+    managedExecutorAddress: stringOrNull(record.managedExecutorAddress),
+    proposalTargetAddress: stringOrNull(record.proposalTargetAddress),
+    finalTargetAddress: stringOrNull(record.finalTargetAddress),
+    finalValue: stringOrNull(record.finalValue),
+    finalActionSelector: stringOrNull(record.finalActionSelector),
+    finalDataHash: stringOrNull(record.finalDataHash),
+    ...optionalStringField("transactionHash", record.transactionHash),
+    ...optionalStringField("blockNumber", record.blockNumber),
+    ...optionalStringField("blockHash", record.blockHash),
+  };
+}
+
+function optionalExecutionReceiptField(value) {
+  const receipt = normalizeExecutionReceipt(value);
+  return receipt === undefined ? {} : { executionReceipt: receipt };
 }
 
 function normalizeSelectors(value) {
